@@ -1,0 +1,19 @@
+{
+  "name": "VillageFoods Admin",
+  "short_name": "VF Admin",
+  "description": "Admin Panel for Village Foods Management",
+  "start_url": "./index.php",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a1c23",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "../assets/images/logo/VillageFoods Delivery Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

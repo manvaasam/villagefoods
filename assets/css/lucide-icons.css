@@ -1,0 +1,51 @@
+/* =============================================
+   LUCIDE ICONS STYLES — VILLAGE FOODS
+   ============================================= */
+
+/* Base Lucide Icon Styling */
+i[data-lucide] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-family: inherit;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+/* Inline icon adjustments */
+button i[data-lucide],
+a i[data-lucide],
+.nav-btn i[data-lucide],
+.promo-btn i[data-lucide],
+.banner-strip-item i[data-lucide],
+.tracking-step-dot i[data-lucide],
+.delivery-partner-icon i[data-lucide] {
+  vertical-align: middle;
+}
+
+/* Icon in headings */
+h1 i[data-lucide],
+h2 i[data-lucide],
+h3 i[data-lucide],
+.section-title i[data-lucide],
+.admin-card-title i[data-lucide] {
+  margin-right: 8px;
+}
+
+/* Icon badges */
+.nav-badge i[data-lucide],
+.order-badge i[data-lucide],
+.status-pill i[data-lucide] {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+/* Professional icon appearance */
+i[data-lucide] svg {
+  width: 100%;
+  height: 100%;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}

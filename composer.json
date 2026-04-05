@@ -1,0 +1,6 @@
+{
+    "require": {
+        "phpmailer/phpmailer": "^7.0",
+        "google/analytics-data": "^0.23.3"
+    }
+}

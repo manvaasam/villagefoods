@@ -1,0 +1,19 @@
+{
+  "name": "VillageFoods Delivery",
+  "short_name": "VF Delivery",
+  "description": "Delivery Partner Console for Village Foods",
+  "start_url": "./index.php",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a9c3e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "../assets/images/logo/VillageFoods Delivery Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

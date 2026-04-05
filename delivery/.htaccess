@@ -1,0 +1,19 @@
+Options -MultiViews -Indexes
+
+RewriteEngine On
+# ------------------------------------------------------------------------------------
+# IMPORTANT: FOR LOCALHOST USE: RewriteBase /new_food/delivery/
+# IMPORTANT: FOR LIVE SERVER USE: RewriteBase /delivery/
+# ------------------------------------------------------------------------------------
+RewriteBase /new_food/delivery/
+
+# 1. Redirect index.php to root of delivery
+RewriteRule ^index\.php$ ./ [R=301,L]
+
+# 2. Support Clean URLs (remove .php)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([^/]+)$ $1.php [L]
+
+# 3. Security: Disable directory listing
+Options -Indexes

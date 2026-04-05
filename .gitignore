@@ -1,0 +1,28 @@
+# Composer dependencies
+/vendor/
+
+# User uploads
+/uploads/
+
+# Logs and temporary files
+*.log
+/tmp/
+
+# Sensitive credentials
+analytics-credentials.json
+.env
+
+# IDE and OS files
+.vscode/
+.idea/
+nbproject/
+.DS_Store
+Thumbs.db
+
+# Database dumps
+*.sql
+*.sqlite
+
+# Backup files
+*.bak
+*.old

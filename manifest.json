@@ -1,0 +1,32 @@
+{
+  "name": "Village Foods",
+  "short_name": "VillageFoods",
+  "description": "Premium Food Delivery and Rapid Pickup Service",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a9c3e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/images/logo/VillageFoods Delivery Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/images/logo/VillageFoods Delivery Logo.png",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["food", "delivery", "shopping"],
+  "screenshots": [
+    {
+      "src": "assets/images/logo/VillageFoods Delivery Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}

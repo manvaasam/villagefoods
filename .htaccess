@@ -1,0 +1,44 @@
+Options -MultiViews -Indexes
+
+RewriteEngine On
+# ------------------------------------------------------------------------------------
+# IMPORTANT: FOR LOCALHOST USE: RewriteBase /new_food/
+# IMPORTANT: FOR LIVE SERVER USE: RewriteBase /
+# ------------------------------------------------------------------------------------
+RewriteBase /new_food/
+
+# 1. Redirect index.php to root
+RewriteRule ^index\.php$ ./ [R=301,L]
+
+# 2. Support Clean URLs (remove .php)
+# If the request matches a real file or directory, don't rewrite
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# If the request with .php appended matches a real file, rewrite
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.+)$ $1.php [L]
+
+# 3. Security: Block sensitive file types
+<FilesMatch "\.(sql|log|bak|php\.bak|sqlite|env|ini|sh|lock)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# 4. Security: Disable directory listing
+Options -Indexes
+
+# 5. Security: Prevent script access to includes
+RewriteRule ^includes/.*$ - [F,L]
+
+# 6. Optimized Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# 7. Gzip Compression (If mod_deflate is available)
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>

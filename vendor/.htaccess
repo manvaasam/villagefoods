@@ -1,0 +1,19 @@
+Options -MultiViews -Indexes
+
+RewriteEngine On
+# ------------------------------------------------------------------------------------
+# IMPORTANT: FOR LOCALHOST USE: RewriteBase /new_food/vendor/
+# IMPORTANT: FOR LIVE SERVER USE: RewriteBase /vendor/
+# ------------------------------------------------------------------------------------
+RewriteBase /new_food/vendor/
+
+# 1. Redirect index.php to root of vendor
+RewriteRule ^index\.php$ ./ [R=301,L]
+
+# 2. Support Clean URLs (remove .php)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([^/]+)$ $1.php [L]
+
+# 3. Security: Disable directory listing
+Options -Indexes

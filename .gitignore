@@ -1,5 +1,16 @@
-# Composer dependencies
-/vendor/
+# Composer dependencies (selective to avoid ignoring vendor cabinet source)
+/vendor/composer/
+/vendor/firebase/
+/vendor/google/
+/vendor/grpc/
+/vendor/guzzlehttp/
+/vendor/phpmailer/
+/vendor/psr/
+/vendor/ralouphie/
+/vendor/ramsey/
+/vendor/symfony/
+/vendor/autoload.php
+/vendor/brick/
 
 # User uploads
 /uploads/

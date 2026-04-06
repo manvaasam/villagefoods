@@ -1108,8 +1108,6 @@ const OrderAdmin = (() => {
   }
 
   async function processRefund() {
-    alert('Refund Start');
-    console.log('processRefund clicked');
     const modal = document.getElementById('orderDetailsModal');
     const orderId = modal.dataset.orderId;
     if (!orderId) return;

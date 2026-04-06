@@ -1,6 +1,6 @@
-<?php
-session_start();
 require_once '../../includes/db.php';
+require_once '../../includes/auth_helper.php';
+safe_session_start();
 
 // Clear persistent token if exists
 if (isset($_COOKIE['auth_token'])) {

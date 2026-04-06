@@ -11,7 +11,7 @@ function safe_session_start() {
             'lifetime' => 0,
             'path' => '/',
             'domain' => '',
-            'secure' => true, // Enforce HTTPS
+            'secure' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'), // Only secure on HTTPS
             'httponly' => true,
             'samesite' => 'Lax'
         ]);

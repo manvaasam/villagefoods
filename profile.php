@@ -36,7 +36,7 @@ $addresses = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <button class="nav-btn nav-btn-outline" style="width:100%; border-color:var(--primary); color:var(--primary)" onclick="Profile.openEditName()">
                         <i data-lucide="edit-3" style="width:16px;height:16px;margin-right:8px"></i> Edit Name
                     </button>
-                    <button class="nav-btn nav-btn-ghost" style="width:100%; color:var(--accent)" onclick="window.location.href='api/logout.php'">
+                    <button class="nav-btn nav-btn-ghost" style="width:100%; color:var(--accent)" onclick="window.location.href='api/auth/logout.php'">
                         <i data-lucide="log-out" style="width:16px;height:16px;margin-right:8px"></i> Logout
                     </button>
                 </div>

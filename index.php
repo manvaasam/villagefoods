@@ -16,7 +16,7 @@ include 'includes/navbar.php';
   "image": "https://villagefoods.in/assets/images/logo/VillageFoods Delivery Logo.png",
   "description": "Farm fresh vegetables, premium meats, and bakery items delivered to your doorstep in 30 minutes across Thirupathur District.",
   "url": "https://villagefoods.in",
-  "telephone": "+919876543210",
+  "telephone": "+<?php echo Settings::get('store_phone', '916380091001'); ?>",
   "priceRange": "₹₹",
   "address": {
     "@type": "PostalAddress",

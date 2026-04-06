@@ -53,7 +53,7 @@ include 'includes/navbar.php';
             <div class="contact-info-icon"><i data-lucide="phone-call" style="width:24px;height:24px"></i></div>
             <div class="contact-info-text">
                 <h4>Call Us</h4>
-                <p>+91 63800 91001</p>
+                <p>+<?php echo Settings::get('store_phone', '91 63800 91001'); ?></p>
                 <p>Mon - Sun, 9:00 AM - 10:00 PM</p>
             </div>
         </div>
@@ -61,8 +61,8 @@ include 'includes/navbar.php';
             <div class="contact-info-icon"><i data-lucide="mail" style="width:24px;height:24px"></i></div>
             <div class="contact-info-text">
                 <h4>Email Us</h4>
-                <p>manvaasamtech@gmail.com</p>
-                <p>hello@villagefoods.in</p>
+                <p><?php echo Settings::get('store_email', 'hello@villagefoods.in'); ?></p>
+                <p>Available for support</p>
             </div>
         </div>
         <div class="contact-info-item">

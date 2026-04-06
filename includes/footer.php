@@ -30,8 +30,8 @@
       </div>
       <div class="footer-col">
         <h4>Contact</h4>
-        <a href="mailto:manvaasamtech@gmail.com" class="footer-link"><i data-lucide="mail" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px"></i> manvaasamtech@gmail.com</a>
-        <a href="tel:+916380091001" class="footer-link"><i data-lucide="phone" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px"></i> +91 63800 91001</a>
+        <a href="mailto:<?php echo Settings::get('store_email', 'hello@villagefoods.in'); ?>" class="footer-link"><i data-lucide="mail" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px"></i> <?php echo Settings::get('store_email', 'hello@villagefoods.in'); ?></a>
+        <a href="tel:+<?php echo Settings::get('store_phone', '916380091001'); ?>" class="footer-link"><i data-lucide="phone" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px"></i> +<?php echo Settings::get('store_phone', '91 63800 91001'); ?></a>
         <a href="#" class="footer-link"><i data-lucide="map-pin" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px"></i> Thirupathur, Tamil Nadu</a>
         <div class="footer-socials">
           <div class="footer-social-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div>

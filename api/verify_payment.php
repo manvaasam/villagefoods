@@ -31,6 +31,22 @@ if ($generated_signature !== $razorpay_signature) {
     exit;
 }
 
+// 1.1 Verify Amount with Razorpay (Security - Prevent Amount Tampering)
+$ch = curl_init("https://api.razorpay.com/v1/orders/" . $razorpay_order_id);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_USERPWD, RAZORPAY_KEY_ID . ":" . RAZORPAY_KEY_SECRET);
+$response = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($http_code !== 200) {
+    echo json_encode(['status' => 'error', 'message' => 'Failed to verify payment with provider']);
+    exit;
+}
+
+$rzpOrder = json_decode($response, true);
+$paidAmountInPaise = $rzpOrder['amount'] ?? 0;
+
 try {
     // 2. Verified! Now Save Order to DB
     $pdo->beginTransaction();
@@ -67,6 +83,14 @@ try {
 
     $deliveryCharge = 0; // Temporarily 0 for testing
     $grandTotal = $totalAmount + $deliveryCharge;
+
+    // 2.1 Verify Amount (Security - Prevent Amount Tampering)
+    // We compare the amount in Paise (Razorpay unit)
+    $expectedAmountInPaise = (int)round($grandTotal * 100);
+    if (abs($paidAmountInPaise - $expectedAmountInPaise) > 1) { // 1 paise tolerance for float rounding
+        throw new Exception("Payment amount mismatch. Security verification failed.");
+    }
+
     $orderNumber = 'VF-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
 
     // Insert Order

@@ -11,7 +11,7 @@ function safe_session_start() {
             'lifetime' => 0,
             'path' => '/',
             'domain' => '',
-            'secure' => false, // Set to true if using HTTPS
+            'secure' => true, // Enforce HTTPS
             'httponly' => true,
             'samesite' => 'Lax'
         ]);

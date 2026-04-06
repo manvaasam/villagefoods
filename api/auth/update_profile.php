@@ -24,7 +24,7 @@ if (empty($newName)) {
 }
 
 try {
-    $stmt = $pdo->prepare("UPDATE users SET full_name = ? WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE users SET name = ? WHERE id = ?");
     $stmt->execute([$newName, $userId]);
 
     $_SESSION['user_name'] = $newName;

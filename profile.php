@@ -131,12 +131,12 @@ const Profile = {
         if(!name) { Toast.show('Name is required', 'warning'); return; }
         
         try {
-            const res = await fetch('api/update_profile.php', {
+            const resp = await fetch('api/auth/update_profile.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: name })
             });
-            const data = await res.json();
+            const data = await resp.json();
             if(data.status === 'success') {
                 Toast.show(data.message, 'success');
                 setTimeout(() => window.location.reload(), 1000);
@@ -155,12 +155,12 @@ const Profile = {
         if(!confirm('Are you sure you want to delete this address?')) return;
         
         try {
-            const res = await fetch('api/delete_address.php', {
+            const resp = await fetch('api/orders/delete_address.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ address_id: id })
             });
-            const data = await res.json();
+            const data = await resp.json();
             if(data.status === 'success') {
                 Toast.show(data.message, 'success');
                 setTimeout(() => window.location.reload(), 1000);

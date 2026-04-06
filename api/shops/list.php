@@ -1,11 +1,16 @@
 <?php
 require_once '../../includes/db.php';
+require_once '../../includes/auth_helper.php';
+safe_session_start();
 header('Content-Type: application/json');
 
 $category_id = isset($_GET['category_id']) ? intval($_GET['category_id']) : null;
 $category_slug = isset($_GET['category_slug']) ? $_GET['category_slug'] : null;
 $params = [];
-$is_admin = isset($_GET['admin']) ? true : false;
+
+// Security: Only admins can see vendor emails or inactive shops
+$is_admin = (isset($_GET['admin']) && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin');
+
 $select = "s.*";
 if ($is_admin) {
     $select .= ", u.email as vendor_email";

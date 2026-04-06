@@ -19,8 +19,13 @@ class MailHelper {
             
             if (!$order) return false;
 
-            // 2. Fetch Order Items
-            $stmt = $pdo->prepare("SELECT * FROM order_items WHERE order_id = ?");
+            // 2. Fetch Order Items with Product Images
+            $stmt = $pdo->prepare("
+                SELECT oi.*, p.image_url 
+                FROM order_items oi 
+                LEFT JOIN products p ON oi.product_id = p.id 
+                WHERE oi.order_id = ?
+            ");
             $stmt->execute([$orderId]);
             $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -1182,7 +1182,7 @@ const OrderAdmin = (() => {
     Toast.show('Orders exported successfully!', 'success');
   }
 
-  return { init, renderTable, viewDetails, updateStatus, assignDelivery, filter, exportCSV };
+  return { init, renderTable, viewDetails, updateStatus, assignDelivery, processRefund, filter, exportCSV };
 })();
 
 // ======= CATEGORY MANAGEMENT =======

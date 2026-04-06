@@ -64,6 +64,7 @@ const AdminAPI = (() => {
   }
 
   return {
+    fetchJSON: fetchJSON,
     getStats:     (range = '30d') => fetchJSON(`../api/admin/get_stats.php?range=${range}`),
     getProducts:  (query = '', cat = '', shopId = 'all') => fetchJSON(`../api/admin/products/list.php?search=${encodeURIComponent(query)}&category=${cat}&shop_id=${shopId}`),
     saveProduct: async (data) => {

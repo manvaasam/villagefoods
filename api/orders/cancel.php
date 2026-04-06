@@ -58,7 +58,8 @@ try {
 
     // Determine Payment Status
     $newPaymentStatus = $order['payment_status'];
-    if ($order['payment_method'] === 'Razorpay' && $order['payment_status'] === 'Paid') {
+    // If it's a Razorpay order, it's eligible for refund if it was 'Paid' or if it's already verified online (type=online)
+    if ($order['payment_method'] === 'Razorpay' && ($order['payment_status'] === 'Paid' || empty($order['payment_status']))) {
         $newPaymentStatus = 'Refund Pending';
     }
 

@@ -1048,6 +1048,17 @@ const OrderAdmin = (() => {
     `).join('');
 
     modal.dataset.orderId = id;
+    
+    // Toggle Refund Action Group visibility
+    const refundGroup = document.getElementById('refundActionGroup');
+    if (refundGroup) {
+        if (o.payment_status === 'Refund Pending') {
+            refundGroup.style.display = 'block';
+        } else {
+            refundGroup.style.display = 'none';
+        }
+    }
+
     Modal.open('orderDetailsModal');
     if (window.lucide) lucide.createIcons();
   }

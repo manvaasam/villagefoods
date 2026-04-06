@@ -366,7 +366,7 @@
 </div>
 
 <script src="../assets/js/utils.js"></script>
-<script src="../assets/js/admin.js?v=1.8"></script>
+<script src="../assets/js/admin.js?v=2.0"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') {

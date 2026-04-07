@@ -26,7 +26,7 @@ try {
 
     if (!$order) throw new Exception('Order not found.');
     
-    $status = strtolower($order['status'] ?? '');
+    $status = (!empty($order['status'])) ? strtolower($order['status']) : 'pending';
     if (!in_array($status, ['pending', 'requested', 'rejected', 'assigned'])) {
         throw new Exception("Order is already in progress or completed (Current: {$order['status']}).");
     }

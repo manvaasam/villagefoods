@@ -7,7 +7,7 @@ require_once '../../../includes/auth_helper.php';
 requireRole(['admin']);
 
 try {
-    $stmt = $pdo->query("SELECT dp.id, u.name, u.phone 
+    $stmt = $pdo->query("SELECT u.id, u.name, u.phone 
                          FROM delivery_partners dp 
                          JOIN users u ON dp.user_id = u.id 
                          WHERE dp.verification_status = 'Verified' 

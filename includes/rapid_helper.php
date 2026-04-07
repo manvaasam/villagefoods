@@ -16,7 +16,7 @@ class RapidHelper {
 
         $newStatus = ($activeCount > 0) ? 'busy' : 'available';
 
-        $stmt = $pdo->prepare("UPDATE delivery_partners SET status = ? WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE delivery_partners SET status = ? WHERE user_id = ?");
         $stmt->execute([$newStatus, $delivery_boy_id]);
         
         return $newStatus;

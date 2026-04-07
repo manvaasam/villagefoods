@@ -24,7 +24,7 @@ try {
     $pdo->beginTransaction();
 
     $stmt = $pdo->prepare("SELECT status FROM rapid_orders WHERE id = ? AND delivery_boy_id = ? FOR UPDATE");
-    $stmt->execute([$order_id, $partner_id]);
+    $stmt->execute([$order_id, $delivery_boy_user_id]);
     $order = $stmt->fetch();
 
     if (!$order) throw new Exception('Order assignment not found.');
@@ -48,7 +48,7 @@ try {
 
     // On completion, set delivery boy back to available
     if ($new_status === 'completed') {
-        RapidHelper::syncStatus($pdo, $partner_id);
+        RapidHelper::syncStatus($pdo, $delivery_boy_user_id);
     }
 
     $pdo->commit();

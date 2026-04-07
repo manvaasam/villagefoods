@@ -42,7 +42,7 @@ try {
     $query .= " ORDER BY r.created_at DESC";
 
     $stmt = $pdo->prepare($query);
-    $stmt->execute([$partner_id]);
+    $stmt->execute([$user_id]);
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Mask PII

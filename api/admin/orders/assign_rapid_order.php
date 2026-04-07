@@ -34,7 +34,7 @@ try {
     $old_boy_id = $order['delivery_boy_id'];
 
     // 2. Validate delivery boy: must be 'available'
-    $stmt = $pdo->prepare("SELECT status FROM delivery_partners WHERE id = ? FOR UPDATE");
+    $stmt = $pdo->prepare("SELECT id, status FROM delivery_partners WHERE user_id = ? FOR UPDATE");
     $stmt->execute([$delivery_boy_id]);
     $partner = $stmt->fetch();
 

@@ -63,6 +63,14 @@ include 'layouts/header.php';
             <div class="settings-section" style="margin-top: 24px;">
                 <h3 class="settings-section-title"><i data-lucide="zap"></i> Rapid Pickup Configuration</h3>
                 
+                <div style="background: var(--primary-soft); border-left: 4px solid var(--primary); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="margin:0; font-size:12px; font-weight:600; color:var(--text-dark); line-height:1.5">
+                        <strong>💡 How it works:</strong> Base Price covers the first <strong>2km</strong>. 
+                        Every KM after that is charged at the <strong>Distance Charge</strong> rate. 
+                        Final total is multiplied by vehicle type (Bike 1.0x, Heavy 1.5x, Express 2.0x).
+                    </p>
+                </div>
+                
                 <div class="form-grid-2">
                     <div class="form-group">
                         <label class="form-label">Bike Base Price (₹)</label>
@@ -86,17 +94,6 @@ include 'layouts/header.php';
                     <label class="form-label">Distance Charge (₹ per KM)</label>
                     <input class="form-input" type="number" id="rapid_price_per_km" placeholder="10">
                     <p class="text-muted fs-12">Additional charge for every kilometer after the first 2km.</p>
-                </div>
-
-                <div style="margin-top: 20px; padding: 15px; background: #fefce8; border: 1px solid #fef08a; border-radius: 12px;">
-                    <div style="display: flex; gap: 10px; align-items: flex-start;">
-                        <i data-lucide="info" style="width: 18px; height: 18px; color: #ca8a04; flex-shrink: 0; margin-top: 2px;"></i>
-                        <div style="font-size: 13px; color: #854d0e; line-height: 1.5;">
-                            <strong style="display: block; margin-bottom: 4px;">Calculation Logic:</strong>
-                            Final Price = [Base Price + (Distance - 2km) × KM Rate] × Vehicle Multiplier<br>
-                            <span style="font-size: 11px; opacity: 0.8;">(Multipliers: Bike 1.0x, Heavy 1.5x, Express 2.0x)</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 

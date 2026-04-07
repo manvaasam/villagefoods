@@ -66,9 +66,6 @@ checkPersistentLogin($pdo);
   <link rel="stylesheet" href="<?php echo $urlPrefix ?? ''; ?>assets/css/variables.css">
   <link rel="stylesheet" href="<?php echo $urlPrefix ?? ''; ?>assets/css/components.css?v=1.1">
   <link rel="stylesheet" href="<?php echo $urlPrefix ?? ''; ?>assets/css/lucide-icons.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="<?php echo $urlPrefix ?? ''; ?>assets/js/pwa.js"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <?php 
   if (isset($extraStyles) && is_string($extraStyles) && trim($extraStyles) !== '') {
       echo $extraStyles;
@@ -76,17 +73,6 @@ checkPersistentLogin($pdo);
       echo '<link rel="stylesheet" href="' . ($urlPrefix ?? '') . 'assets/css/customer.css?v=1.1">';
   }
   ?>
-  
-  <!-- Google Analytics (Option A - Hardcoded) -->
-  <!-- Note: To activate, UNCOMMENT the script block below and replace 'G-XXXXXXXXXX' with your Measurement ID -->
-  
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FDCG4L7ZZ4"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-FDCG4L7ZZ4');
-  </script>
  
 </head>
 <body class="<?php echo $bodyClass ?? ''; ?>">

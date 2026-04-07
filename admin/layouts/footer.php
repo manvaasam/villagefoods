@@ -365,8 +365,18 @@
     </div>
 </div>
 
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="<?php echo $urlPrefix ?? ''; ?>assets/js/pwa.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FDCG4L7ZZ4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-FDCG4L7ZZ4');
+</script>
 <script src="../assets/js/utils.js"></script>
-<script src="../assets/js/admin.js?v=2.0"></script>
+<script src="../assets/js/admin.js?v=2.1"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') {

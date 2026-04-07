@@ -43,6 +43,11 @@ self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
+  // BYPASS for Shop Images - ensuring they are always live and correctly handled
+  if (event.request.url.includes('assets/images/shops/')) {
+    return;
+  }
+
   // NETWORK-FIRST for Navigation (HTML/PHP pages)
   // This ensures the user always gets the latest session/login state if online
   if (event.request.mode === 'navigate') {

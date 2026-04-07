@@ -18,8 +18,7 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule ^(.+)$ $1.php [L]
 
-# 3. Security: Block sensitive file types
-<FilesMatch "\.(sql|log|bak|php\.bak|sqlite|env|ini|sh|lock|json|md)$">
+<FilesMatch "\.(sql|log|bak|php\.bak|sqlite|env|ini|sh|lock|md)$">
     Order allow,deny
     Deny from all
 </FilesMatch>

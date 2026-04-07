@@ -87,6 +87,17 @@ include 'layouts/header.php';
                     <input class="form-input" type="number" id="rapid_price_per_km" placeholder="10">
                     <p class="text-muted fs-12">Additional charge for every kilometer after the first 2km.</p>
                 </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #fefce8; border: 1px solid #fef08a; border-radius: 12px;">
+                    <div style="display: flex; gap: 10px; align-items: flex-start;">
+                        <i data-lucide="info" style="width: 18px; height: 18px; color: #ca8a04; flex-shrink: 0; margin-top: 2px;"></i>
+                        <div style="font-size: 13px; color: #854d0e; line-height: 1.5;">
+                            <strong style="display: block; margin-bottom: 4px;">Calculation Logic:</strong>
+                            Final Price = [Base Price + (Distance - 2km) × KM Rate] × Vehicle Multiplier<br>
+                            <span style="font-size: 11px; opacity: 0.8;">(Multipliers: Bike 1.0x, Heavy 1.5x, Express 2.0x)</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="settings-section" style="margin-top: 24px;">

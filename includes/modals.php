@@ -73,7 +73,8 @@
                        type="text" id="loginOtp" maxlength="6" placeholder="000000">
             </div>
             <div style="font-size:12px; text-align:center; margin-top:8px; color:var(--text-muted)">
-                OTP sent to <strong id="displayEmail"></strong>
+                OTP sent to <strong id="displayEmail"></strong> 
+                <a href="javascript:void(0)" onclick="Auth.showEmailView()" style="color:var(--primary); text-decoration:none; margin-left:4px; font-weight:700">Edit</a>
             </div>
         </div>
         <button class="form-btn" id="btnVerifyOtp" onclick="Auth.verifyOtp()">Verify & Continue</button>

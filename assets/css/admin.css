@@ -1470,3 +1470,23 @@ input:checked + .slider:before { transform: translateX(20px); }
     vertical-align: middle;
     margin-right: 6px;
 }
+
+/* ======= LEAFLET MAP FIXES ======= */
+.leaflet-container img {
+    max-width: none !important;
+    max-height: none !important;
+}
+
+#shopMap {
+    display: block !important;
+    width: 100% !important;
+    height: 400px !important; /* Force height to match inline style for stability */
+    min-height: 400px;
+    z-index: 10;
+    background: #f8fafc; /* Placeholder background */
+}
+
+/* Ensure modal handles map properly during transitions */
+#addShopModal .modal {
+    overflow-x: visible !important;
+}

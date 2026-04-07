@@ -296,7 +296,20 @@ const Auth = (() => {
     }
   });
 
-  return { checkStatus, handleLoginStep, sendOtp, verifyOtp, proceedToCheckout, toggleUserDropdown };
+  function showEmailView() {
+    document.getElementById('emailView').style.display = 'block';
+    document.getElementById('otpView').style.display = 'none';
+    document.getElementById('loginModalTitle').textContent = 'Welcome to Village Foods';
+    document.getElementById('loginModalSub').textContent = 'Sign in to sync your cart and checkout';
+    
+    // Auto-focus email input for better UX
+    setTimeout(() => {
+        const emailEl = document.getElementById('loginEmail');
+        if (emailEl) emailEl.focus();
+    }, 100);
+  }
+
+  return { checkStatus, handleLoginStep, sendOtp, verifyOtp, proceedToCheckout, toggleUserDropdown, showEmailView };
 })();
 
 // ======= WISHLIST SYSTEM =======

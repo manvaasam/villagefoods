@@ -11,7 +11,7 @@ try {
     if (!$user_id) throw new Exception('User ID is required');
 
     $query = "SELECT u.image, u.email,
-                     dp.id as partner_id, dp.full_name, dp.phone, dp.status as verification_status,
+                     dp.id as partner_id, dp.full_name, dp.phone, dp.verification_status,
                      pvd.vehicle_type, pvd.vehicle_number, pvd.license_number,
                      pbd.bank_name, pbd.holder_name as acc_holder_name, pbd.account_number as acc_number, pbd.ifsc_code, pbd.upi_id,
                      pd.license_doc, pd.aadhaar_doc, pd.rc_doc

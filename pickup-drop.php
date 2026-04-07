@@ -208,14 +208,14 @@ include 'includes/header.php';
 include 'includes/navbar.php';
 ?>
 
-<!-- HERO -->
-<section class="pickup-page-hero">
-  <div class="hero-emoji" style="background: white; width: 120px; height: 120px; border-radius: 50%; padding: 10px; margin: 0 auto 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2)">
-    <img src="assets/images/village_quick-1.png" alt="Village Quick" style="width: 100%; height: 100%; object-fit:cover">
-  </div>
-  <h1>Village Quick Service</h1>
-  <p>Send anything, anywhere in the city. Fast, reliable bike delivery — your personal delivery partner!</p>
-</section>
+<!-- Hero -->
+<script>
+  window.RAPID_SETTINGS = {
+    bike: <?= (int)Settings::get('rapid_price_bike', 30) ?>,
+    heavy: <?= (int)Settings::get('rapid_price_heavy', 50) ?>,
+    express: <?= (int)Settings::get('rapid_price_express', 70) ?>
+  };
+</script>
 
 <!-- BOOKING CARD -->
 <div class="container">
@@ -275,20 +275,20 @@ include 'includes/navbar.php';
     <div class="form-group">
       <label class="form-label">Package Type</label>
       <div class="vehicle-options">
-        <div class="vehicle-option selected" onclick="selectVehicle(this, 'bike', 30)">
+        <div class="vehicle-option selected" onclick="selectVehicle(this, 'bike', <?= Settings::get('rapid_price_bike', 30) ?>)">
           <div class="vehicle-icon"><i data-lucide="bike"></i></div>
           <div class="vehicle-name">Bike</div>
-          <div class="vehicle-price">From ₹30</div>
+          <div class="vehicle-price">From ₹<?= Settings::get('rapid_price_bike', 30) ?></div>
         </div>
-        <div class="vehicle-option" onclick="selectVehicle(this, 'eco', 50)">
+        <div class="vehicle-option" onclick="selectVehicle(this, 'eco', <?= Settings::get('rapid_price_heavy', 50) ?>)">
           <div class="vehicle-icon"><i data-lucide="package"></i></div>
           <div class="vehicle-name">Heavy Parcel</div>
-          <div class="vehicle-price">From ₹50</div>
+          <div class="vehicle-price">From ₹<?= Settings::get('rapid_price_heavy', 50) ?></div>
         </div>
-        <div class="vehicle-option" onclick="selectVehicle(this, 'express', 70)">
+        <div class="vehicle-option" onclick="selectVehicle(this, 'express', <?= Settings::get('rapid_price_express', 70) ?>)">
           <div class="vehicle-icon"><i data-lucide="zap"></i></div>
           <div class="vehicle-name">Express</div>
-          <div class="vehicle-price">From ₹70</div>
+          <div class="vehicle-price">From ₹<?= Settings::get('rapid_price_express', 70) ?></div>
         </div>
       </div>
     </div>
@@ -366,13 +366,27 @@ include 'includes/navbar.php';
 
 <script>
   let selectedType = 'bike';
-  let selectedPrice = { min: 40, max: 80 };
+  let selectedPrice = { 
+    min: window.RAPID_SETTINGS?.bike || 30, 
+    max: (window.RAPID_SETTINGS?.bike || 30) * 2 
+  };
 
   function selectVehicle(el, type, basePrice) {
     document.querySelectorAll('.vehicle-option').forEach(v => v.classList.remove('selected'));
     el.classList.add('selected');
     selectedType = type;
-    const prices = { bike: [30, 70], eco: [50, 100], express: [70, 140] };
+    
+    // Calculate dynamic min/max based on settings
+    const bikePrice = window.RAPID_SETTINGS?.bike || 30;
+    const heavyPrice = window.RAPID_SETTINGS?.heavy || 50;
+    const expressPrice = window.RAPID_SETTINGS?.express || 70;
+    
+    const prices = { 
+      bike: [bikePrice, bikePrice * 2 + 10], 
+      eco: [heavyPrice, heavyPrice * 2 + 10], 
+      express: [expressPrice, expressPrice * 2 + 10] 
+    };
+    
     const [min, max] = prices[type] || [30, 70];
     selectedPrice = { min, max };
     updateEstimatedPrice();
@@ -455,7 +469,8 @@ include 'includes/navbar.php';
     // Extra: ₹10 per km after 2km
     // Vehicle Multiplier: Bike(1.0), Heavy(1.5), Express(2.0)
     
-    let basePrice = 30;
+    const settingsMap = { bike: 'bike', eco: 'heavy', express: 'express' };
+    let basePrice = window.RAPID_SETTINGS?.[settingsMap[selectedType]] || 30;
     if (distance > 2) {
         basePrice += (distance - 2) * 10;
     }
@@ -487,14 +502,45 @@ include 'includes/navbar.php';
     const btn = event.target.closest('button');
     const originalText = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;border-color:white;border-top-color:transparent"></div> Processing...';
+    btn.innerHTML = '<div class="loading-spinner"></div> Processing...';
 
-    // FEATURE ON HOLD: Showing notification as requested
-    setTimeout(() => {
-        Toast.show('Pickup & Drop service is currently under process. We will launch soon!', 'info');
+    const price = updateEstimatedPrice() || 30;
+
+    try {
+        const resp = await fetch('api/rapid/create.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sender_name: name,
+                sender_phone: phone,
+                pickup_address: pickup,
+                pickup_lat: pickupCoords ? pickupCoords.lat : null,
+                pickup_lng: pickupCoords ? pickupCoords.lng : null,
+                drop_address: drop,
+                drop_lat: dropCoords ? dropCoords.lat : null,
+                drop_lng: dropCoords ? dropCoords.lng : null,
+                item_description: desc,
+                package_type: selectedType,
+                price: price
+            })
+        });
+        
+        const result = await resp.json();
+        if (result.status === 'success') {
+            Toast.show(result.message, 'success');
+            // Redirect to orders page with rapid tab active
+            setTimeout(() => window.location.href = 'orders.php?tab=rapid', 1500);
+        } else {
+            Toast.show(result.message || 'Booking failed', 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    } catch (e) {
+        console.error(e);
+        Toast.show('An error occurred during booking', 'error');
         btn.disabled = false;
         btn.innerHTML = originalText;
-    }, 1500);
+    }
   }
 
   // ===== DYNAMIC LOCATION SEARCH (Photon API) =====

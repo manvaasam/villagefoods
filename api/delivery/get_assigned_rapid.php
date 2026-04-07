@@ -6,19 +6,26 @@ require_once '../../includes/auth_helper.php';
 
 requireRole(['delivery']);
 
-$delivery_boy_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 $status_filter = $_GET['status'] ?? 'active';
 
 try {
-    // Check verification status first
-    $stmt = $pdo->prepare("SELECT verification_status FROM delivery_details WHERE user_id = ?");
-    $stmt->execute([$delivery_boy_id]);
-    $vStatus = $stmt->fetchColumn();
+    // 1. Get Partner ID and check verification status
+    $stmt = $pdo->prepare("SELECT id, verification_status FROM delivery_partners WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $partner = $stmt->fetch();
 
-    if ($vStatus !== 'Verified') {
+    if (!$partner) {
+        echo json_encode(['error' => 'Partner profile not found']);
+        exit;
+    }
+
+    if ($partner['verification_status'] !== 'Verified') {
         echo json_encode(['error' => 'Not Verified']);
         exit;
     }
+
+    $partner_id = $partner['id'];
 
     $query = "SELECT r.*, u.name as customer_name, u.phone as customer_phone 
               FROM rapid_orders r 
@@ -26,20 +33,21 @@ try {
               WHERE r.delivery_boy_id = ?";
     
     if ($status_filter === 'active') {
-        $query .= " AND r.status IN ('Accepted', 'Picked', 'Delivering')";
+        // Active: assigned (newly assigned), accepted (accepted by boy), picked (item picked)
+        $query .= " AND r.status IN ('assigned', 'accepted', 'picked')";
     } elseif ($status_filter === 'done') {
-        $query .= " AND r.status IN ('Completed', 'Cancelled')";
+        $query .= " AND r.status IN ('completed', 'rejected')";
     }
 
     $query .= " ORDER BY r.created_at DESC";
 
     $stmt = $pdo->prepare($query);
-    $stmt->execute([$delivery_boy_id]);
+    $stmt->execute([$partner_id]);
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Mask PII
     foreach ($orders as &$order) {
-        $isFinished = in_array($order['status'], ['Completed', 'Cancelled']);
+        $isFinished = in_array($order['status'], ['completed', 'rejected']);
         if ($isFinished && !empty($order['customer_phone'])) {
             $len = strlen($order['customer_phone']);
             if ($len > 4) {

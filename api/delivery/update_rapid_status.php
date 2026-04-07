@@ -3,50 +3,60 @@ header('Content-Type: application/json');
 session_start();
 require_once '../../includes/db.php';
 require_once '../../includes/auth_helper.php';
+require_once '../../includes/rapid_helper.php';
 
 requireRole(['delivery']);
 
-$data = json_decode(file_get_contents('php://input'), true);
-$rapid_id = $data['rapid_id'] ?? null;
-$status = $data['status'] ?? null;
-$delivery_boy_id = $_SESSION['user_id'];
-
-if (!$rapid_id || !$status) {
-    echo json_encode(['success' => false, 'error' => 'Rapid ID and status are required']);
-    exit;
-}
-
-$allowedStatuses = ['Accepted', 'Picked', 'Delivering', 'Completed', 'Cancelled'];
-if (!in_array($status, $allowedStatuses)) {
-    echo json_encode(['success' => false, 'error' => 'Invalid status']);
-    exit;
-}
-
 try {
-    // Verify ownership
-    $stmt = $pdo->prepare("SELECT delivery_boy_id FROM rapid_orders WHERE id = ?");
-    $stmt->execute([$rapid_id]);
+    $data = json_decode(file_get_contents('php://input'), true);
+    $order_id = !empty($data['id']) ? (int)$data['id'] : null;
+    $new_status = !empty($data['status']) ? $data['status'] : null;
+    $delivery_boy_user_id = $_SESSION['user_id'];
+
+    if (!$order_id || !$new_status) throw new Exception('Order ID and Status are required.');
+
+    $stmt = $pdo->prepare("SELECT id FROM delivery_partners WHERE user_id = ?");
+    $stmt->execute([$delivery_boy_user_id]);
+    $partner = $stmt->fetch();
+    if (!$partner) throw new Exception('Delivery partner record not found.');
+    $partner_id = $partner['id'];
+
+    $pdo->beginTransaction();
+
+    $stmt = $pdo->prepare("SELECT status FROM rapid_orders WHERE id = ? AND delivery_boy_id = ? FOR UPDATE");
+    $stmt->execute([$order_id, $partner_id]);
     $order = $stmt->fetch();
 
-    if (!$order || $order['delivery_boy_id'] != $delivery_boy_id) {
-        echo json_encode(['success' => false, 'error' => 'Order not assigned to you']);
-        exit;
-    }
+    if (!$order) throw new Exception('Order assignment not found.');
 
-    if ($status === 'Completed') {
-        $stmt = $pdo->prepare("UPDATE rapid_orders SET status = ?, delivered_at = NOW() WHERE id = ?");
-        $stmt->execute([$status, $rapid_id]);
-    } elseif ($status === 'Picked') {
-        $stmt = $pdo->prepare("UPDATE rapid_orders SET status = ?, picked_up_at = NOW() WHERE id = ?");
-        $stmt->execute([$status, $rapid_id]);
+    // Transition validation
+    if ($new_status === 'picked') {
+        if ($order['status'] !== 'accepted') throw new Exception('Order must be accepted before picking.');
+    } elseif ($new_status === 'completed') {
+        if ($order['status'] !== 'picked') throw new Exception('Order must be picked up before completing.');
     } else {
-        $stmt = $pdo->prepare("UPDATE rapid_orders SET status = ? WHERE id = ?");
-        $stmt->execute([$status, $rapid_id]);
+        throw new Exception('Invalid status transition.');
     }
 
-    echo json_encode(['success' => true, 'message' => 'Status updated to ' . $status]);
+    // Update order
+    $updateFields = "status = ?, updated_at = NOW()";
+    if ($new_status === 'picked') $updateFields .= ", picked_up_at = NOW()";
+    if ($new_status === 'completed') $updateFields .= ", delivered_at = NOW()";
+
+    $stmt = $pdo->prepare("UPDATE rapid_orders SET $updateFields WHERE id = ?");
+    $stmt->execute([$new_status, $order_id]);
+
+    // On completion, set delivery boy back to available
+    if ($new_status === 'completed') {
+        RapidHelper::syncStatus($pdo, $partner_id);
+    }
+
+    $pdo->commit();
+    echo json_encode(['success' => true, 'message' => 'Status updated to ' . $new_status]);
 
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) $pdo->rollBack();
+    http_response_code(400);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 ?>

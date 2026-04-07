@@ -35,13 +35,13 @@ try {
     $refund_pending = $stmt->fetch()['total'] ?? 0;
 
     // 4b. Rapid Order Stats
-    $stmt = $pdo->query("SELECT COUNT(*) as total FROM rapid_orders WHERE status = 'Requested'");
+    $stmt = $pdo->query("SELECT COUNT(*) as total FROM rapid_orders WHERE status = 'pending'");
     $pending_rapid = $stmt->fetch()['total'] ?? 0;
 
-    $stmt = $pdo->query("SELECT COUNT(*) as total FROM rapid_orders WHERE status = 'Completed'");
+    $stmt = $pdo->query("SELECT COUNT(*) as total FROM rapid_orders WHERE status = 'completed'");
     $completed_rapid = $stmt->fetch()['total'] ?? 0;
 
-    $stmt = $pdo->query("SELECT SUM(price) as total FROM rapid_orders WHERE status = 'Completed'");
+    $stmt = $pdo->query("SELECT SUM(price) as total FROM rapid_orders WHERE status = 'completed'");
     $rapid_revenue = $stmt->fetch()['total'] ?? 0;
 
     // 5. Recent Orders (Last 5)
@@ -170,7 +170,7 @@ try {
             'pending_rapid' => $pending_rapid,
             'completed_rapid' => $completed_rapid,
             'rapid_revenue' => number_format($rapid_revenue, 2),
-            'platform_profit' => number_format($platform_profit + (float)($pdo->query("SELECT SUM(platform_profit) FROM rapid_orders WHERE status = 'Completed'")->fetchColumn() ?: 0), 2),
+            'platform_profit' => number_format($platform_profit + (float)($pdo->query("SELECT SUM(platform_profit) FROM rapid_orders WHERE status = 'completed'")->fetchColumn() ?: 0), 2),
             'refund_pending' => (int)$refund_pending
         ],
         'recent_orders' => $recent_orders,

@@ -1965,7 +1965,8 @@ const SettingsAdmin = (() => {
 
   async function save() {
     const fields = [
-        'base_delivery_fee', 'handling_fee', 'platform_fee', 'vendor_commission_percentage', 'enable_cod', 'shop_status'
+        'base_delivery_fee', 'handling_fee', 'platform_fee', 'vendor_commission_percentage', 'enable_cod', 'shop_status',
+        'rapid_price_bike', 'rapid_price_heavy', 'rapid_price_express'
     ];
 
     const data = {};
@@ -2077,10 +2078,10 @@ const ShopAdmin = (() => {
   let marker = null;
   const defaultLoc = [11.1271, 78.6569]; // Tamil Nadu center
 
-  function init(data) {
-    shops = data || [];
+  function init(shopsJson) {
+    shops = shopsJson;
     setupShopPreview();
-    initMap();
+    // initMap() is now called on demand in add() and edit()
   }
 
   function setupShopPreview() {
@@ -2107,32 +2108,40 @@ const ShopAdmin = (() => {
     });
   }
 
-  function setMarker(lat, lng, updateInputs = true) {
+  function updateMarker(lat, lng) {
     if (!map) return;
-    lat = parseFloat(lat);
-    lng = parseFloat(lng);
-    if (isNaN(lat) || isNaN(lng)) return;
-
     if (marker) {
       marker.setLatLng([lat, lng]);
     } else {
       marker = L.marker([lat, lng]).addTo(map);
     }
-    
-    if (updateInputs) {
-        document.getElementById('shopLat').value = lat.toFixed(8);
-        document.getElementById('shopLng').value = lng.toFixed(8);
-    }
-    map.panTo([lat, lng]);
   }
 
   function initMap() {
-    if (map) return;
+    if (map) {
+        triggerInvalidate();
+        return;
+    }
+    
+    const mapContainer = document.getElementById('shopMap');
+    if (!mapContainer) return;
+
     map = L.map('shopMap').setView(defaultLoc, 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    // Robust Resizing: Use ResizeObserver instead of simple timeouts
+    if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => {
+            if (map) {
+                map.invalidateSize();
+                if (marker) map.panTo(marker.getLatLng(), {animate: false});
+            }
+        });
+        ro.observe(mapContainer);
+    }
 
     // Add Geocoder (Search)
     const geocoder = L.Control.geocoder({
@@ -2142,7 +2151,9 @@ const ShopAdmin = (() => {
     })
     .on('markgeocode', function(e) {
       const { center } = e.geocode;
-      setMarker(center.lat, center.lng);
+      updateMarker(center.lat, center.lng);
+      document.getElementById('shopLat').value = center.lat.toFixed(8);
+      document.getElementById('shopLng').value = center.lng.toFixed(8);
       map.setView(center, 16);
     })
     .addTo(map);
@@ -2172,7 +2183,9 @@ const ShopAdmin = (() => {
     map.addControl(new LocateControl());
 
     map.on('locationfound', (e) => {
-        setMarker(e.latitude, e.longitude);
+        updateMarker(e.latitude, e.longitude);
+        document.getElementById('shopLat').value = e.latitude.toFixed(8);
+        document.getElementById('shopLng').value = e.longitude.toFixed(8);
     });
 
     map.on('locationerror', (e) => {
@@ -2181,29 +2194,52 @@ const ShopAdmin = (() => {
 
     map.on('click', (e) => {
       const { lat, lng } = e.latlng;
-      setMarker(lat, lng);
+      updateMarker(lat, lng);
+      document.getElementById('shopLat').value = lat.toFixed(8);
+      document.getElementById('shopLng').value = lng.toFixed(8);
     });
 
     // Handle Manual Input Changes
     const updateFromInputs = () => {
-        const lat = document.getElementById('shopLat').value;
-        const lng = document.getElementById('shopLng').value;
-        if (lat && lng) setMarker(lat, lng, false);
+        const lat = parseFloat(document.getElementById('shopLat').value);
+        const lng = parseFloat(document.getElementById('shopLng').value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            updateMarker(lat, lng);
+        }
     };
     document.getElementById('shopLat').addEventListener('input', updateFromInputs);
     document.getElementById('shopLng').addEventListener('input', updateFromInputs);
+  }
 
-    // Handle map resize when modal opens
-    const modal = document.getElementById('addShopModal');
-    const observer = new MutationObserver(() => {
-        if (modal.classList.contains('open')) {
-            setTimeout(() => {
-                map.invalidateSize();
-                if (window.lucide) lucide.createIcons();
-            }, 500);
+  function triggerInvalidate() {
+    if (!map) return;
+    
+    // High-frequency refresh for 1 second to catch all transition stages
+    let start = null;
+    const step = (timestamp) => {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        if (map) map.invalidateSize();
+        if (progress < 1000) {
+            window.requestAnimationFrame(step);
         }
-    });
-    observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    };
+    window.requestAnimationFrame(step);
+    
+    if (marker) map.panTo(marker.getLatLng());
+  }
+  function add() {
+    resetModal();
+    document.getElementById('shopModalTitle').innerHTML = '<i data-lucide="store"></i> Add New Shop';
+    Modal.open('addShopModal');
+    
+    // Initialize map after modal starts opening
+    // Leaflet needs actual dimensions, so we wait for the transition to finish or start resizing
+    setTimeout(() => {
+        initMap();
+        triggerInvalidate(); // Extra insurance
+        if (window.lucide) lucide.createIcons();
+    }, 150);
   }
 
   function resetModal() {
@@ -2283,13 +2319,23 @@ const ShopAdmin = (() => {
       preview.style.display = 'block';
     }
 
-    // Map Coordinates
-    initMap();
-    if (shop.latitude && shop.longitude) {
-      setMarker(parseFloat(shop.latitude), parseFloat(shop.longitude));
-    }
-
+    // Modal open
     Modal.open('addShopModal');
+
+    // Initialize/Update Map
+    setTimeout(() => {
+        initMap();
+        if (shop.latitude && shop.longitude) {
+            const lat = parseFloat(shop.latitude);
+            const lng = parseFloat(shop.longitude);
+            updateMarker(lat, lng);
+            document.getElementById('shopLat').value = shop.latitude;
+            document.getElementById('shopLng').value = shop.longitude;
+            if (map) map.setView([lat, lng], 13);
+        }
+        triggerInvalidate();
+        if (window.lucide) lucide.createIcons();
+    }, 150);
   }
 
   async function save() {
@@ -2368,7 +2414,7 @@ const ShopAdmin = (() => {
     }
   }
 
-  return { init, resetModal, edit, save, delete: del };
+  return { init, resetModal, add, edit, save, delete: del };
 })();
 
 /**

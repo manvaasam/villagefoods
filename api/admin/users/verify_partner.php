@@ -22,9 +22,7 @@ try {
     $stmt->execute([$user_id, $status]);
 
     // 2. Update new table (delivery_partners)
-    // Map 'Verified' -> 'Verified', 'Rejected' -> 'Profile Incomplete' (or add a new status)
-    // For now let's keep it simple.
-    $stmt = $pdo->prepare("UPDATE delivery_partners SET status = ? WHERE user_id = ?");
+    $stmt = $pdo->prepare("UPDATE delivery_partners SET verification_status = ? WHERE user_id = ?");
     $stmt->execute([$status, $user_id]);
 
     // Notify Partner via Email

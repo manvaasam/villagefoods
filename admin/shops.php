@@ -19,7 +19,7 @@ require_once '../includes/db.php';
         <p class="subtitle">Platform partner management and monitoring</p>
     </div>
     <div class="header-btn-box">
-        <button class="nav-btn btn-primary premium-btn" onclick="Modal.open('addShopModal')">
+        <button class="nav-btn btn-primary premium-btn" onclick="ShopAdmin.add()">
             <i data-lucide="plus-circle"></i> <span>Add New Shop</span>
         </button>
     </div>

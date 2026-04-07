@@ -42,7 +42,7 @@ RewriteRule ^includes/.*$ - [F,L]
     # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     
     # 2. CSP (Content Security Policy)
-    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://stats.g.doubleclick.net; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; object-src 'none';"
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://unpkg.com https://nominatim.openstreetmap.org https://photon.komoot.io https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://stats.g.doubleclick.net; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; object-src 'none';"
     
     # 3. Prevent Clickjacking
     Header set X-Frame-Options "SAMEORIGIN"

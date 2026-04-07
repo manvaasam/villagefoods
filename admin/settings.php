@@ -61,6 +61,29 @@ include 'layouts/header.php';
             </div>
 
             <div class="settings-section" style="margin-top: 24px;">
+                <h3 class="settings-section-title"><i data-lucide="zap"></i> Rapid Pickup Configuration</h3>
+                
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Bike Base Price (₹)</label>
+                        <input class="form-input" type="number" id="rapid_price_bike" placeholder="30">
+                        <p class="text-muted fs-12">Starting price for small items.</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Heavy Parcel Base Price (₹)</label>
+                        <input class="form-input" type="number" id="rapid_price_heavy" placeholder="50">
+                        <p class="text-muted fs-12">Starting price for bulky items.</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Express Delivery Base Price (₹)</label>
+                    <input class="form-input" type="number" id="rapid_price_express" placeholder="70">
+                    <p class="text-muted fs-12">Premium price for urgent deliveries.</p>
+                </div>
+            </div>
+
+            <div class="settings-section" style="margin-top: 24px;">
                 <h3 class="settings-section-title"><i data-lucide="credit-card"></i> Payment Controls</h3>
                 
                 <div class="settings-toggle-group" style="padding: 16px; background: var(--bg-light); border-radius: var(--radius-sm); border: 1px solid var(--border);">

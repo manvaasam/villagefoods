@@ -39,7 +39,7 @@ try {
     $userId = $pdo->lastInsertId();
 
     // Create delivery_partners record
-    $stmt = $pdo->prepare("INSERT INTO delivery_partners (user_id, email, status) VALUES (?, ?, 'Profile Incomplete')");
+    $stmt = $pdo->prepare("INSERT INTO delivery_partners (user_id, email, verification_status) VALUES (?, ?, 'Profile Incomplete')");
     $stmt->execute([$userId, $email]);
     $partnerId = $pdo->lastInsertId();
 

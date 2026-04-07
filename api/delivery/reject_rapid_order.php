@@ -5,7 +5,6 @@ require_once '../../includes/db.php';
 require_once '../../includes/auth_helper.php';
 require_once '../../includes/rapid_helper.php';
 
-// Delivery boy role required
 requireRole(['delivery']);
 
 try {
@@ -15,7 +14,6 @@ try {
 
     if (!$order_id) throw new Exception('Order ID is required.');
 
-    // Get the partner ID from users table join or similar
     $stmt = $pdo->prepare("SELECT id FROM delivery_partners WHERE user_id = ?");
     $stmt->execute([$delivery_boy_user_id]);
     $partner = $stmt->fetch();
@@ -24,22 +22,25 @@ try {
 
     $pdo->beginTransaction();
 
-    // Validate the order assignment
+    // Only allow rejection if currently 'assigned'
     $stmt = $pdo->prepare("SELECT status FROM rapid_orders WHERE id = ? AND delivery_boy_id = ? FOR UPDATE");
     $stmt->execute([$order_id, $partner_id]);
     $order = $stmt->fetch();
 
-    if (!$order) throw new Exception('Order assignment not found or already changed.');
+    if (!$order) throw new Exception('Order assignment not found.');
     if ($order['status'] !== 'assigned') {
-        throw new Exception('Order cannot be accepted. Current status: ' . $order['status']);
+        throw new Exception('Cannot reject after accepting or picking up.');
     }
 
-    // Update status to accepted
-    $stmt = $pdo->prepare("UPDATE rapid_orders SET status = 'accepted', updated_at = NOW() WHERE id = ?");
+    // Update order status to rejected and reset assignment
+    $stmt = $pdo->prepare("UPDATE rapid_orders SET status = 'rejected', delivery_boy_id = NULL, updated_at = NOW() WHERE id = ?");
     $stmt->execute([$order_id]);
 
+    // Set delivery boy back to available
+    RapidHelper::syncStatus($pdo, $partner_id);
+
     $pdo->commit();
-    echo json_encode(['success' => true, 'message' => 'Order accepted!']);
+    echo json_encode(['success' => true, 'message' => 'Order rejected.']);
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();

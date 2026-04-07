@@ -26,9 +26,9 @@ try {
     } elseif ($filter === 'new') {
         $where[] = "u.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
     } elseif ($filter === 'verified' && $role === 'delivery') {
-        $where[] = "dp.status = 'Verified'";
+        $where[] = "dp.verification_status = 'Verified'";
     } elseif ($filter === 'pending' && $role === 'delivery') {
-        $where[] = "dp.status = 'Verification Pending'";
+        $where[] = "dp.verification_status = 'Verification Pending'";
     }
 
     $orderBy = "u.created_at DESC";
@@ -44,7 +44,7 @@ try {
                          COALESCE(NULLIF(u.phone, ''), (SELECT contact_number FROM user_addresses WHERE user_id = u.id ORDER BY id DESC LIMIT 1)) as phone,
                          (SELECT COUNT(*) FROM orders WHERE delivery_boy_id = u.id AND status = 'Delivered') as total_deliveries,
                          (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE delivery_boy_id = u.id AND status = 'Delivered') as total_earned,
-                         dp.status as verification_status,
+                         dp.verification_status,
                          COALESCE(dd.is_online, 0) as is_online
                   FROM users u 
                   LEFT JOIN delivery_partners dp ON u.id = dp.user_id

@@ -17,7 +17,7 @@ $user_id = $_SESSION['user_id'];
 
 try {
     $query = "SELECT u.email, u.created_at, u.image,
-                     dp.id as partner_id, dp.full_name, dp.phone, dp.status as partner_status,
+                     dp.id as partner_id, dp.full_name, dp.phone, dp.verification_status as partner_status,
                      pvd.vehicle_type, pvd.vehicle_number, pvd.license_number,
                      pbd.bank_name, pbd.holder_name, pbd.account_number, pbd.ifsc_code, pbd.upi_id,
                      pd.license_doc, pd.aadhaar_doc, pd.rc_doc

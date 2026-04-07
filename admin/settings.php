@@ -63,11 +63,15 @@ include 'layouts/header.php';
             <div class="settings-section" style="margin-top: 24px;">
                 <h3 class="settings-section-title"><i data-lucide="zap"></i> Rapid Pickup Configuration</h3>
                 
-                <div style="background: var(--primary-soft); border-left: 4px solid var(--primary); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;">
-                    <p style="margin:0; font-size:12px; font-weight:600; color:var(--text-dark); line-height:1.5">
-                        <strong>💡 How it works:</strong> Base Price covers the first <strong>2km</strong>. 
-                        Every KM after that is charged at the <strong>Distance Charge</strong> rate. 
-                        Final total is multiplied by vehicle type (Bike 1.0x, Heavy 1.5x, Express 2.0x).
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+                    <div style="display:flex; align-items:center; gap:8px; color:var(--primary); margin-bottom:8px">
+                        <i data-lucide="help-circle" style="width:16px; height:16px"></i>
+                        <span style="font-weight:800; font-size:13px; text-transform:uppercase">Pricing Guide</span>
+                    </div>
+                    <p style="margin:0; font-size:12.5px; color:#475569; line-height:1.6">
+                        Fare = <strong>[Base Price]</strong> + <strong>[(Distance - 2km) × KM Rate]</strong>. <br>
+                        <span style="font-size:11.5px; opacity:0.8">Example: If distance is 5km and Bike Base is ₹20, KM Rate is ₹10: <br>
+                        ₹20 (first 2km) + ₹30 (extra 3km) = <strong>₹50 Total</strong>.</span>
                     </p>
                 </div>
                 

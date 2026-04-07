@@ -41,7 +41,7 @@
         <label class="form-label">Product Image</label>
         <input class="form-input" type="file" id="prodImageFile" accept="image/*">
         <div id="prodImagePreview" style="margin-top:10px; display:none;">
-          <img src="" style="width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid var(--border);">
+          <img id="prodImagePreviewImg" src="" style="width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid var(--border);" onerror="this.src='../assets/images/placeholder.png';">
         </div>
       </div>
       <div class="form-group"><label class="form-label">Original Price (₹)</label><input class="form-input" type="number" id="prodOldPrice" placeholder="M.R.P or Old price"></div>
@@ -244,7 +244,7 @@
       <label class="form-label">Shop Image</label>
       <input class="form-input" type="file" id="shopImageFile" accept="image/*">
       <div id="shopImagePreview" style="margin-top:10px; display:none;">
-        <img src="" style="width:100px; height:80px; border-radius:8px; object-fit:cover; border:1px solid var(--border);">
+        <img id="shopImagePreviewImg" src="" style="width:100px; height:80px; border-radius:8px; object-fit:cover; border:1px solid var(--border);" onerror="this.src='../assets/images/placeholder.png';">
       </div>
     </div>
     <button class="form-btn" onclick="ShopAdmin.save()"><i data-lucide="save"></i> Save Shop</button>
@@ -269,7 +269,7 @@
       <label class="form-label">Category Image (System Upload)</label>
       <input class="form-input" type="file" id="catImageFile" accept="image/*">
       <div id="catImagePreview" style="margin-top:10px; display:none;">
-        <img src="" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--border);">
+        <img id="catImagePreviewImg" src="" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--border);" onerror="this.src='../assets/images/placeholder.png';">
       </div>
     </div>
     <button class="form-btn" onclick="CategoryAdmin.save()"><i data-lucide="save"></i> Save Category</button>

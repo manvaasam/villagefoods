@@ -625,21 +625,26 @@ const ProductAdmin = (() => {
   function setupProductPreview() {
     const fileInput = document.getElementById('prodImageFile');
     const preview = document.getElementById('prodImagePreview');
-    const previewImg = preview?.querySelector('img');
+    const previewImg = document.getElementById('prodImagePreviewImg');
     
-    if (!fileInput || !previewImg) return;
-    
+    if (!fileInput || !preview) return;
+    if (fileInput.dataset.hasListener) return;
+
     fileInput.addEventListener('change', function() {
       const file = this.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          previewImg.src = e.target.result;
-          preview.style.display = 'block';
-        }
+          if (previewImg) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+          }
+        };
         reader.readAsDataURL(file);
       }
     });
+
+    fileInput.dataset.hasListener = "true";
   }
 
   function render(prods = products) {
@@ -1225,21 +1230,26 @@ const CategoryAdmin = (() => {
   function setupPreview() {
     const fileInput = document.getElementById('catImageFile');
     const preview = document.getElementById('catImagePreview');
-    const previewImg = preview?.querySelector('img');
+    const previewImg = document.getElementById('catImagePreviewImg');
     
-    if (!fileInput || !previewImg) return;
-    
+    if (!fileInput || !preview) return;
+    if (fileInput.dataset.hasListener) return;
+
     fileInput.addEventListener('change', function() {
       const file = this.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          previewImg.src = e.target.result;
-          preview.style.display = 'block';
-        }
+          if (previewImg) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+          }
+        };
         reader.readAsDataURL(file);
       }
     });
+
+    fileInput.dataset.hasListener = "true";
   }
 
   function render() {
@@ -2087,25 +2097,38 @@ const ShopAdmin = (() => {
   function setupShopPreview() {
     const fileInput = document.getElementById('shopImageFile');
     const preview = document.getElementById('shopImagePreview');
-    const previewImg = preview?.querySelector('img');
+    const previewImg = document.getElementById('shopImagePreviewImg'); // Use ID for reliability
     
-    if (!fileInput || !previewImg) return;
+    if (!fileInput || !preview) return;
     
-    // Remove if previously attached to avoid multiple listeners
-    const oldInput = fileInput.cloneNode(true);
-    fileInput.parentNode.replaceChild(oldInput, fileInput);
-    
-    oldInput.addEventListener('change', function() {
+    // Check if we already attached a listener to THIS input
+    if (fileInput.dataset.hasListener) return;
+
+    fileInput.addEventListener('change', function() {
       const file = this.files[0];
       if (file) {
+        // Basic validation
+        if (!file.type.startsWith('image/')) {
+          Toast.show('Please select an image file', 'warning');
+          this.value = '';
+          return;
+        }
+
         const reader = new FileReader();
         reader.onload = function(e) {
-          previewImg.src = e.target.result;
-          preview.style.display = 'block';
-        }
+          if (previewImg) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+          }
+        };
+        reader.onerror = function() {
+          Toast.show('Failed to read image file', 'error');
+        };
         reader.readAsDataURL(file);
       }
     });
+    
+    fileInput.dataset.hasListener = "true";
   }
 
   function updateMarker(lat, lng) {
@@ -2260,9 +2283,9 @@ const ShopAdmin = (() => {
       checkboxes.forEach(cb => cb.checked = false);
 
       const preview = document.getElementById('shopImagePreview');
+      const img = document.getElementById('shopImagePreviewImg');
       if (preview) {
         preview.style.display = 'none';
-        const img = preview.querySelector('img');
         if (img) img.src = '';
       }
 
@@ -2313,8 +2336,8 @@ const ShopAdmin = (() => {
     }
 
     const preview = document.getElementById('shopImagePreview');
-    if (shop.shop_image && preview) {
-      const img = preview.querySelector('img');
+    const img = document.getElementById('shopImagePreviewImg');
+    if (shop.shop_image && preview && img) {
       img.src = AdminPanel.fixPath(shop.shop_image);
       preview.style.display = 'block';
     }

@@ -372,9 +372,11 @@
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
     }
-    if (typeof NotificationEngine !== 'undefined') {
-      NotificationEngine.init();
-    }
+    window.addEventListener('load', () => {
+      if (typeof NotificationEngine !== 'undefined') {
+        NotificationEngine.init();
+      }
+    });
   });
 </script>
 </body>

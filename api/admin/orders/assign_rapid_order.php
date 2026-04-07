@@ -25,8 +25,10 @@ try {
     $order = $stmt->fetch();
 
     if (!$order) throw new Exception('Order not found.');
-    if (!in_array($order['status'], ['pending', 'rejected', 'assigned'])) {
-        throw new Exception('Order is already in progress or completed.');
+    
+    $status = strtolower($order['status'] ?? '');
+    if (!in_array($status, ['pending', 'requested', 'rejected', 'assigned'])) {
+        throw new Exception("Order is already in progress or completed (Current: {$order['status']}).");
     }
 
     $old_boy_id = $order['delivery_boy_id'];

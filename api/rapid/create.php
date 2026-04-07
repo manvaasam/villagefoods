@@ -58,7 +58,7 @@ try {
 
     $stmt = $pdo->prepare("INSERT INTO rapid_orders 
         (customer_id, sender_name, sender_phone, pickup_address, pickup_lat, pickup_lng, drop_address, drop_lat, drop_lng, item_description, price, platform_profit, delivery_earning, status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Requested')");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
     $stmt->execute([$user_id, $sender_name, $sender_phone, $pickup, $pickup_lat, $pickup_lng, $drop, $drop_lat, $drop_lng, $description, $price, $platform_profit, $delivery_earning]);
     
     $rapid_id = $pdo->lastInsertId();

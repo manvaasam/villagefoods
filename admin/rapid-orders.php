@@ -369,6 +369,7 @@ const RapidMonitor = {
     
     statusLabels: {
         'pending': { label: 'Pending Assignment', class: 'sp-pending' },
+        'requested': { label: 'Pending Assignment', class: 'sp-pending' },
         'assigned': { label: 'Assigned (Waiting)', class: 'sp-assigned' },
         'accepted': { label: 'Accepted', class: 'sp-accepted' },
         'picked': { label: 'Picked Up', class: 'sp-picked' },
@@ -470,7 +471,7 @@ const RapidMonitor = {
         document.body.appendChild(modal);
 
         this.currentOrder = order;
-        const status = order.status.toLowerCase();
+        const status = (order.status || 'pending').toLowerCase();
         
         // Basic Info
         document.getElementById('modalOrderId').innerText = `#R-${order.id}`;

@@ -81,6 +81,12 @@ include 'layouts/header.php';
                     <input class="form-input" type="number" id="rapid_price_express" placeholder="70">
                     <p class="text-muted fs-12">Premium price for urgent deliveries.</p>
                 </div>
+
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">Distance Charge (₹ per KM)</label>
+                    <input class="form-input" type="number" id="rapid_price_per_km" placeholder="10">
+                    <p class="text-muted fs-12">Additional charge for every kilometer after the first 2km.</p>
+                </div>
             </div>
 
             <div class="settings-section" style="margin-top: 24px;">

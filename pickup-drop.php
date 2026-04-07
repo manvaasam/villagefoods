@@ -213,7 +213,8 @@ include 'includes/navbar.php';
   window.RAPID_SETTINGS = {
     bike: <?= (int)Settings::get('rapid_price_bike', 30) ?>,
     heavy: <?= (int)Settings::get('rapid_price_heavy', 50) ?>,
-    express: <?= (int)Settings::get('rapid_price_express', 70) ?>
+    express: <?= (int)Settings::get('rapid_price_express', 70) ?>,
+    km_rate: <?= (int)Settings::get('rapid_price_per_km', 10) ?>
   };
 </script>
 
@@ -471,8 +472,10 @@ include 'includes/navbar.php';
     
     const settingsMap = { bike: 'bike', eco: 'heavy', express: 'express' };
     let basePrice = window.RAPID_SETTINGS?.[settingsMap[selectedType]] || 30;
+    const kmRate = window.RAPID_SETTINGS?.km_rate || 10;
+
     if (distance > 2) {
-        basePrice += (distance - 2) * 10;
+        basePrice += (distance - 2) * kmRate;
     }
     
     const multipliers = { bike: 1.0, eco: 1.5, express: 2.0 };

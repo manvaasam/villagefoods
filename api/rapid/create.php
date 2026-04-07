@@ -36,11 +36,13 @@ if (!preg_match("/^[0-9]{10}$/", $sender_phone)) {
 
 // Pricing logic
 $prices = [
-    'bike' => 30,
-    'eco' => 50,
-    'express' => 70
+    'bike' => (int)Settings::get('rapid_price_bike', 20),
+    'eco' => (int)Settings::get('rapid_price_heavy', 30),
+    'express' => (int)Settings::get('rapid_price_express', 45)
 ];
-$base_price = $prices[$type] ?? 30;
+$km_rate = (int)Settings::get('rapid_price_per_km', 10);
+
+$base_price = $prices[$type] ?? $prices['bike'];
 $price = (float)($data['price'] ?? $base_price); // Prefer frontend calculated price if provided
 
 // Admin Commission (Profit) Logic

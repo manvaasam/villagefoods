@@ -1966,7 +1966,7 @@ const SettingsAdmin = (() => {
   async function save() {
     const fields = [
         'base_delivery_fee', 'handling_fee', 'platform_fee', 'vendor_commission_percentage', 'enable_cod', 'shop_status',
-        'rapid_price_bike', 'rapid_price_heavy', 'rapid_price_express'
+        'rapid_price_bike', 'rapid_price_heavy', 'rapid_price_express', 'rapid_price_per_km'
     ];
 
     const data = {};

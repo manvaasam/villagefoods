@@ -194,10 +194,10 @@ const NotificationEngine = (() => {
     lastUpdateTimestamp = data.latest_update;
 
     // Always update badges
-    updateBadges(data.pending_count, data.pending_rapid, data.pending_withdrawals, data.pending_refunds);
+    updateBadges(data.pending_count, data.pending_rapid, data.pending_withdrawals, data.pending_refunds, data.pending_partners);
   }
 
-  function updateBadges(foodCount, rapidCount, withdrawalCount, refundCount = 0) {
+  function updateBadges(foodCount, rapidCount, withdrawalCount, refundCount = 0, partnerCount = 0) {
     const orderBadge = document.getElementById('sidebarOrderBadge');
     const refundBadge = document.getElementById('sidebarRefundBadge');
     if (orderBadge) {
@@ -231,6 +231,15 @@ const NotificationEngine = (() => {
     if (withdrawBadge) {
         withdrawBadge.textContent = withdrawalCount;
         withdrawBadge.style.display = withdrawalCount > 0 ? 'inline-flex' : 'none';
+    }
+
+    const partnerBadge = document.getElementById('sidebarPartnerBadge');
+    if (partnerBadge) {
+        partnerBadge.textContent = partnerCount;
+        partnerBadge.style.display = partnerCount > 0 ? 'inline-block' : 'none';
+        if (partnerCount > 0) {
+            partnerBadge.style.animation = 'pulse-premium 1s infinite alternate';
+        }
     }
   }
 
@@ -669,7 +678,7 @@ const ProductAdmin = (() => {
         <td>${p.category_name || 'Uncategorized'}</td>
         <td><strong>₹${p.price}</strong></td>
         <td><span class="status-pill sp-delivered">${p.stock} In Stock</span></td>
-        <td><span class="status-pill sp-delivered">Active</span></td>
+        <td><span class="status-pill sp-${p.status === 'active' ? 'delivered' : 'pending'}">${p.status === 'active' ? 'Active' : 'Inactive'}</span></td>
         <td>⭐ ${p.rating || '4.5'}</td>
         <td>
           <div style="display:flex; gap:8px;">
@@ -704,6 +713,10 @@ const ProductAdmin = (() => {
     
     if (document.getElementById('prodShop') && p.shop_id) {
         document.getElementById('prodShop').value = p.shop_id;
+    }
+
+    if (document.getElementById('prodStatus')) {
+        document.getElementById('prodStatus').value = p.status || 'active';
     }
     
     document.getElementById('prodImageFile').value = '';
@@ -756,6 +769,11 @@ const ProductAdmin = (() => {
         formData.append('shop_id', parseInt(shopVal));
     }
 
+    const statusVal = document.getElementById('prodStatus')?.value;
+    if (statusVal) {
+        formData.append('status', statusVal);
+    }
+
     const fileInput = document.getElementById('prodImageFile');
     if (fileInput.files.length > 0) {
       formData.append('image', fileInput.files[0]);
@@ -801,6 +819,10 @@ const ProductAdmin = (() => {
     document.getElementById('prodRating').value = '';
     if (document.getElementById('prodIsBestseller')) {
         document.getElementById('prodIsBestseller').value = '0';
+    }
+
+    if (document.getElementById('prodStatus')) {
+        document.getElementById('prodStatus').value = 'active';
     }
     
     document.getElementById('prodImageFile').value = '';
@@ -1047,11 +1069,41 @@ const OrderAdmin = (() => {
     // Setup assignment dropdown - Only show verified partners
     const deliveryBoys = await AdminAPI.getUsers('delivery', '', 'verified');
     const assignSelect = modal.querySelector('#modalAssignSelect');
-    assignSelect.innerHTML = '<option value="">Select Partner</option>' + (deliveryBoys || []).map(d => `
-        <option value="${d.id}" ${o.delivery_boy_id == d.id ? 'selected' : ''}>
-            ${Utils.escapeHTML(d.name)} ${d.is_online == 1 ? '🟢 (Online)' : '⚪ (Offline)'}
-        </option>
-    `).join('');
+    
+    // Sort: Online & Ready (0 orders) first, then Online & Busy, then Offline
+    const sortedPartners = (deliveryBoys || []).sort((a, b) => {
+        // Online status priority (1 is online, 0 is offline)
+        if (a.is_online != b.is_online) return b.is_online - a.is_online;
+        // If both online, prioritize someone with 0 orders
+        const aActive = (parseInt(a.active_orders) || 0) + (parseInt(a.active_rapid_orders) || 0);
+        const bActive = (parseInt(b.active_orders) || 0) + (parseInt(b.active_rapid_orders) || 0);
+        return aActive - bActive;
+    });
+
+    assignSelect.innerHTML = '<option value="">Select Partner</option>' + sortedPartners.map(d => {
+        const activeCount = (parseInt(d.active_orders) || 0) + (parseInt(d.active_rapid_orders) || 0);
+        let statusText = '';
+        if (d.is_online == 1) {
+            statusText = activeCount > 0 ? `Busy (${activeCount} order${activeCount > 1 ? 's' : ''})` : 'Ready';
+        } else {
+            statusText = 'Inactive';
+        }
+        
+        const activeTotal = (parseInt(d.active_orders) || 0) + (parseInt(d.active_rapid_orders) || 0);
+        let statusIcon = '⚪';
+        if (d.is_online == 1) {
+            statusIcon = activeTotal > 0 ? '🟡' : '🟢';
+        }
+
+        return `
+            <option value="${d.id}" ${o.delivery_boy_id == d.id ? 'selected' : ''}>
+                ${Utils.escapeHTML(d.name)}${d.city ? ' (' + Utils.escapeHTML(d.city) + ')' : ''} ${statusIcon} - ${statusText}
+            </option>
+        `;
+
+
+    }).join('');
+
 
     modal.dataset.orderId = id;
     
@@ -1605,30 +1657,38 @@ const DeliveryAdmin = (() => {
   let currentFilter = 'all';
 
   async function init() {
-    AdminPanel.showLoading?.();
-    const allData = await AdminAPI.getUsers('delivery', '', 'all') || [];
+    try {
+        console.log("DeliveryAdmin.init() called, filter:", currentFilter);
+        AdminPanel.showLoading?.();
+        const allData = await AdminAPI.getUsers('delivery', '', 'all') || [];
+        console.log("AllData received:", allData.length, allData);
+        
+        // Update Stats
+        const totalEl = document.getElementById('totalPartnersCount');
+        const pendingEl = document.getElementById('pendingPartnersCount');
+        const activeEl = document.getElementById('activePartnersCount');
     
-    // Update Stats
-    const totalEl = document.getElementById('totalPartnersCount');
-    const pendingEl = document.getElementById('pendingPartnersCount');
-    const activeEl = document.getElementById('activePartnersCount');
-
-    if (totalEl) totalEl.textContent = allData.length;
-    if (pendingEl) pendingEl.textContent = allData.filter(u => u.verification_status === 'Verification Pending').length;
-    if (activeEl) activeEl.textContent = allData.filter(u => u.verification_status === 'Verified').length;
-
-    if (currentFilter === 'all') {
-        users = allData;
-    } else if (currentFilter === 'pending') {
-        users = allData.filter(u => u.verification_status === 'Verification Pending');
-    } else if (currentFilter === 'verified') {
-        users = allData.filter(u => u.verification_status === 'Verified');
-    } else {
-        users = allData;
+        if (totalEl) totalEl.textContent = allData.length;
+        if (pendingEl) pendingEl.textContent = allData.filter(u => (u.verification_status || '').toLowerCase().includes('pending')).length;
+        if (activeEl) activeEl.textContent = allData.filter(u => (u.verification_status || '').toLowerCase() === 'verified').length;
+    
+        if (currentFilter === 'all') {
+            users = allData;
+        } else if (currentFilter === 'pending') {
+            users = allData.filter(u => (u.verification_status || '').toLowerCase().includes('pending'));
+        } else if (currentFilter === 'verified') {
+            users = allData.filter(u => (u.verification_status || '').toLowerCase() === 'verified');
+        } else {
+            users = allData;
+        }
+        
+        console.log("Users to render:", users.length, users);
+        render();
+        AdminPanel.hideLoading?.();
+    } catch (err) {
+        console.error("DeliveryAdmin.init error:", err);
+        AdminPanel.hideLoading?.();
     }
-
-    render();
-    AdminPanel.hideLoading?.();
   }
 
   function render() {
@@ -1662,7 +1722,7 @@ const DeliveryAdmin = (() => {
           <div class="fs-11 text-muted">${c.email ? `<a href="mailto:${c.email}" style="color:inherit;text-decoration:none">${c.email}</a>` : '—'}</div>
         </td>
         <td>
-          <span class="status-pill sp-${(c.verification_status || 'Pending').toLowerCase().replace(' ', '-')}">
+          <span class="status-pill sp-${(c.verification_status || 'Pending').toLowerCase().trim().replace(/\s+/g, '-')}">
             ${c.verification_status || 'Pending'}
           </span>
         </td>
@@ -1894,7 +1954,7 @@ const DeliveryAdmin = (() => {
       }
   }
 
-  return { init, resetModal, edit, save, deleteUser, verify };
+  return { init, setFilter, resetModal, edit, save, deleteUser, verify };
 })();
 
 // ======= PAYMENT TRACKING =======

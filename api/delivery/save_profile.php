@@ -28,8 +28,20 @@ try {
     if (isset($_POST['full_name'])) {
         $full_name = trim($_POST['full_name']);
         $phone = trim($_POST['phone']);
-        $stmt = $pdo->prepare("UPDATE delivery_partners SET full_name = ?, phone = ? WHERE id = ?");
-        $stmt->execute([$full_name, $phone, $partner_id]);
+        $city = trim($_POST['city'] ?? '');
+        $area = trim($_POST['area'] ?? '');
+
+        if (empty($full_name)) throw new Exception('Full Name is required');
+        if (!preg_match('/^[a-zA-Z\s]{3,50}$/', $full_name)) throw new Exception('Invalid Name. Only letters and spaces allowed (3-50 chars).');
+        
+        if (empty($phone)) throw new Exception('Phone Number is required');
+        if (!preg_match('/^[6-9][0-9]{9}$/', $phone)) throw new Exception('Invalid Phone Number. Must be 10 digits starting with 6-9.');
+
+        if (empty($city)) throw new Exception('City is required');
+        if (empty($area)) throw new Exception('Area is required');
+
+        $stmt = $pdo->prepare("UPDATE delivery_partners SET full_name = ?, phone = ?, city = ?, area = ? WHERE id = ?");
+        $stmt->execute([$full_name, $phone, $city, $area, $partner_id]);
         
         // Also update users table for consistency
         $stmt = $pdo->prepare("UPDATE users SET name = ?, phone = ? WHERE id = ?");
@@ -37,11 +49,16 @@ try {
         $_SESSION['user_name'] = $full_name;
     }
 
+
     // 2. Handle Section B: Vehicle Details
     if (isset($_POST['vehicle_type'])) {
         $v_type = $_POST['vehicle_type'];
         $v_num = trim($_POST['vehicle_number']);
         $l_num = trim($_POST['license_number']);
+
+        if (empty($v_type)) throw new Exception('Vehicle Type is required');
+        if (empty($v_num)) throw new Exception('Vehicle Number is required');
+        if (empty($l_num)) throw new Exception('License Number is required');
 
         $stmt = $pdo->prepare("SELECT id FROM partner_vehicle_details WHERE partner_id = ?");
         $stmt->execute([$partner_id]);
@@ -61,6 +78,21 @@ try {
         $acc = trim($_POST['account_number']);
         $ifsc = trim($_POST['ifsc_code']);
         $upi = trim($_POST['upi_id']);
+
+        if (empty($bank)) throw new Exception('Bank Name is required');
+        if (!preg_match('/^[a-zA-Z\s]{3,100}$/', $bank)) throw new Exception('Invalid Bank Name format');
+        
+        if (empty($holder)) throw new Exception('Account Holder Name is required');
+        if (!preg_match('/^[a-zA-Z\s]{3,50}$/', $holder)) throw new Exception('Invalid Account Holder Name');
+
+        if (empty($acc)) throw new Exception('Account Number is required');
+        if (!preg_match('/^[0-9]{9,18}$/', $acc)) throw new Exception('Invalid Account Number. Must be 9-18 digits.');
+
+        if (empty($ifsc)) throw new Exception('IFSC Code is required');
+        if (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/', $ifsc)) throw new Exception('Invalid IFSC Code format (e.g. SBIN0123456)');
+
+        if (empty($upi)) throw new Exception('UPI ID is required');
+        if (!preg_match('/^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/', $upi)) throw new Exception('Invalid UPI ID format');
 
         $stmt = $pdo->prepare("SELECT id FROM partner_bank_details WHERE partner_id = ?");
         $stmt->execute([$partner_id]);
@@ -123,21 +155,23 @@ try {
 
     // 5. Automatic Status Transition Logic
     $stmt = $pdo->prepare("
-        SELECT dp.full_name, dp.phone, 
+        SELECT dp.full_name, dp.phone, dp.city, dp.area, dp.verification_status,
                pvd.vehicle_type, pvd.vehicle_number, pvd.license_number,
-               pbd.bank_name, pbd.account_number,
-               pd.license_doc, pd.aadhaar_doc, pd.rc_doc
+               pbd.bank_name, pbd.holder_name, pbd.account_number, pbd.ifsc_code, pbd.upi_id,
+               pd.license_doc, pd.aadhaar_doc, pd.rc_doc,
+               u.image as profile_image
         FROM delivery_partners dp
         LEFT JOIN partner_vehicle_details pvd ON dp.id = pvd.partner_id
         LEFT JOIN partner_bank_details pbd ON dp.id = pbd.partner_id
         LEFT JOIN partner_documents pd ON dp.id = pd.partner_id
+        LEFT JOIN users u ON dp.user_id = u.id
         WHERE dp.id = ?
     ");
     $stmt->execute([$partner_id]);
     $check = $stmt->fetch();
 
     $isComplete = true;
-    $mandatory = ['full_name', 'phone', 'vehicle_type', 'vehicle_number', 'license_number', 'bank_name', 'account_number', 'license_doc', 'aadhaar_doc', 'rc_doc'];
+    $mandatory = ['full_name', 'phone', 'city', 'area', 'vehicle_type', 'vehicle_number', 'license_number', 'bank_name', 'account_number', 'upi_id', 'license_doc', 'aadhaar_doc', 'rc_doc', 'profile_image'];
     foreach ($mandatory as $field) {
         if (empty($check[$field])) {
             $isComplete = false;
@@ -145,8 +179,16 @@ try {
         }
     }
 
-    if ($isComplete) {
-        $stmt = $pdo->prepare("UPDATE delivery_partners SET status = 'Verification Pending' WHERE id = ? AND status = 'Profile Incomplete'");
+    // Logic for State Change:
+    // 1. If currently Verified -> Reset to Pending (Any change)
+    // 2. If currently Incomplete and now Complete -> Move to Pending
+    $currentStatus = $check['verification_status'];
+    
+    if ($currentStatus === 'Verified') {
+        $stmt = $pdo->prepare("UPDATE delivery_partners SET verification_status = 'Verification Pending' WHERE id = ?");
+        $stmt->execute([$partner_id]);
+    } else if ($isComplete && $currentStatus === 'Profile Incomplete') {
+        $stmt = $pdo->prepare("UPDATE delivery_partners SET verification_status = 'Verification Pending' WHERE id = ?");
         $stmt->execute([$partner_id]);
     }
 

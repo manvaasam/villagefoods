@@ -1,15 +1,42 @@
 <?php
-$pageTitle = 'Shop Details — Village Foods';
-include 'includes/header.php';
-include 'includes/navbar.php';
+require_once 'includes/db.php';
 
 $shop_id = isset($_GET['id']) ? intval($_GET['id']) : null;
+$product_id = isset($_GET['product_id']) ? intval($_GET['product_id']) : null;
+
+// If product_id is provided, resolve shop_id and set meta tags for sharing
+if ($product_id) {
+    $stmt = $pdo->prepare("SELECT p.name, p.price, p.old_price, p.image_url, p.shop_id, s.shop_name FROM products p JOIN shops s ON p.shop_id = s.id WHERE p.id = ?");
+    $stmt->execute([$product_id]);
+    $productMeta = $stmt->fetch();
+    
+    if ($productMeta) {
+        $pName = htmlspecialchars($productMeta['name']);
+        $pPrice = htmlspecialchars($productMeta['price']);
+        $sName = htmlspecialchars($productMeta['shop_name']);
+        
+        $pageTitle = "$pName | Village Foods";
+        $pageDescription = "Buy $pName for just ₹$pPrice at $sName. Fast delivery from Village Foods!";
+        
+        if ($productMeta['image_url']) {
+            $ogImage = $productMeta['image_url'];
+        }
+        if (!$shop_id) $shop_id = $productMeta['shop_id'];
+    }
+}
+
 if (!$shop_id) {
     echo "<script>window.location.href='index.php';</script>";
     exit;
 }
-?>
 
+if (!isset($pageTitle)) {
+    $pageTitle = 'Shop Details — Village Foods';
+}
+
+include 'includes/header.php';
+include 'includes/navbar.php';
+?>
 <style>
   .shop-hero-container {
     margin-top: 20px;

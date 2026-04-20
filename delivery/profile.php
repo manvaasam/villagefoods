@@ -24,14 +24,16 @@ include 'layouts/top_nav.php';
         position: relative;
     }
 
-    /* Modern Progress Bar */
+    /* Modern Progress Bar - Impressive Revamp */
     .onboarding-progress-container {
-        background: var(--white);
-        border: 1px solid var(--border-light);
-        border-radius: var(--radius-lg);
-        padding: 36px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 30px;
+        padding: 40px;
         margin-bottom: 32px;
-        box-shadow: var(--shadow);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
     }
 
     .onboarding-status-bar {
@@ -39,7 +41,7 @@ include 'layouts/top_nav.php';
         align-items: center;
         justify-content: space-between;
         position: relative;
-        max-width: 640px;
+        max-width: 600px;
         margin: 0 auto;
     }
 
@@ -47,56 +49,83 @@ include 'layouts/top_nav.php';
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 14px;
+        gap: 16px;
         z-index: 2;
         flex: 1;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .step-circle {
-        width: 44px;
-        height: 44px;
-        background: var(--bg);
-        border: 2px solid var(--border);
-        border-radius: 14px;
+        width: 45px;
+        height: 45px;
+        background: white;
+        border: 2px solid #f1f5f9;
+        border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--text-dim);
-        transition: all 0.4s ease;
+        color: #94a3b8;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
     }
 
     .status-step.active .step-circle {
-        background: var(--primary);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
-        border-color: var(--primary);
-        box-shadow: 0 8px 16px var(--primary-glow);
+        border-color: transparent;
+        transform: scale(1.1);
+        box-shadow: 0 12px 24px rgba(16, 185, 129, 0.3), 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    /* Active Step Pulse Glow */
+    .status-step.active:last-of-type .step-circle::after,
+    .status-step.active.current-step .step-circle::after {
+        content: '';
+        position: absolute;
+        inset: -8px;
+        border-radius: 24px;
+        background: var(--primary);
+        opacity: 0.2;
+        animation: pulse-glow 2s infinite;
+        z-index: -1;
+    }
+
+    @keyframes pulse-glow {
+        0% { transform: scale(0.95); opacity: 0.4; }
+        50% { transform: scale(1.1); opacity: 0.2; }
+        100% { transform: scale(0.95); opacity: 0.4; }
     }
 
     .status-step span {
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-dim);
+        letter-spacing: 1.5px;
+        color: #64748b;
+        transition: all 0.3s;
     }
 
-    .status-step.active span { color: var(--primary); }
+    .status-step.active span { color: #065f46; letter-spacing: 2px; }
 
     .status-line {
         position: absolute;
-        top: 22px;
-        height: 3px;
-        background: var(--border-light);
-        width: 80%;
-        left: 10%;
+        top: 25px;
+        height: 4px;
+        background: #f1f5f9;
+        width: 73%;
+        left: 13%;
         z-index: 1;
+        border-radius: 2px;
+        overflow: hidden;
     }
 
     .status-line-fill {
         height: 100%;
-        background: var(--primary);
+        background: linear-gradient(90deg, #10b981, #059669);
         width: 0%;
-        transition: width 0.8s ease;
+        transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
     }
 
     /* Profile Header Card */
@@ -199,6 +228,9 @@ include 'layouts/top_nav.php';
         color: var(--text); font-family: inherit; font-size: 14px;
     }
     .premium-input:focus { border-color: var(--primary); background: var(--white); box-shadow: 0 0 0 4px var(--primary-glow); }
+    
+    .form-label::after { content: " *"; color: #ef4444; font-weight: 800; }
+    .form-label.optional::after { content: ""; }
 
     .btn-save { padding: 14px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; }
     .btn-cancel { padding: 14px 20px; background: var(--border-light); color: var(--text-muted); border: none; border-radius: 14px; font-weight: 800; cursor: pointer; }
@@ -221,6 +253,21 @@ include 'layouts/top_nav.php';
         font-weight: 800; font-size: 12px; cursor: pointer;
     }
 
+    .btn-view {
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--primary-pale); color: var(--primary);
+        border: 1.5px solid rgba(26, 156, 62, 0.1); border-radius: 50%;
+        cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(26, 156, 62, 0.1);
+    }
+    .btn-view:hover {
+        background: var(--primary); color: white;
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 8px 20px var(--primary-glow);
+    }
+    .btn-view i { width: 22px; height: 22px; stroke-width: 2.5px; }
+
     .hidden { display: none !important; }
 
     @media (max-width: 768px) {
@@ -241,6 +288,114 @@ include 'layouts/top_nav.php';
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
+
+        /* Custom Premium Modal */
+        .premium-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .premium-modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .premium-modal-card {
+            background: white;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 32px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.25);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .premium-modal-overlay.open .premium-modal-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-warning-icon {
+            width: 72px;
+            height: 72px;
+            background: #fff7ed;
+            color: #ea580c;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: bounce-slow 2s infinite;
+        }
+
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .modal-title-alt {
+            font-size: 22px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .modal-text {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modal-btn {
+            padding: 16px;
+            border-radius: 18px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-secondary-alt {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-secondary-alt:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .btn-confirm-alt {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-confirm-alt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+            filter: brightness(1.1);
+        }
     </style>
 </head>
 <body>
@@ -250,6 +405,23 @@ include 'layouts/top_nav.php';
     </div>
     
     <div id="toast-container"></div>
+
+    <!-- Premium Security Modal -->
+    <div class="premium-modal-overlay" id="securityModal">
+        <div class="premium-modal-card">
+            <div class="modal-warning-icon">
+                <i data-lucide="alert-triangle" style="width:36px; height:36px"></i>
+            </div>
+            <h2 class="modal-title-alt">Security Warning</h2>
+            <p class="modal-text">
+                Your profile is currently <strong>VERIFIED</strong>. Editing these details will suspend your status and require Admin re-approval.
+            </p>
+            <div class="modal-actions">
+                <button class="modal-btn btn-secondary-alt" onclick="closeSecurityModal()">Abort</button>
+                <button class="modal-btn btn-confirm-alt" id="confirmSecurityBtn">I Understand</button>
+            </div>
+        </div>
+    </div>
 
     <div class="profile-container">
         <!-- Top Nav -->
@@ -286,7 +458,10 @@ include 'layouts/top_nav.php';
             <div class="profile-photo-wrapper" onclick="document.getElementById('profileUpload').click()">
                 <div class="profile-photo" id="profileInitial"><?= strtoupper(substr($_SESSION['user_name'] ?? 'P', 0, 1)) ?></div>
                 <div class="photo-overlay">
-                    <i data-lucide="camera" style="width:32px; height:32px;"></i>
+                    <div style="text-align:center">
+                        <i data-lucide="camera" style="width:28px; height:28px; margin-bottom:4px"></i>
+                        <div style="font-size:10px; font-weight:800; color:#fbbf24">REQUIRED</div>
+                    </div>
                 </div>
                 <input type="file" id="profileUpload" hidden accept="image/*" onchange="uploadProfilePhoto(this)">
             </div>
@@ -309,12 +484,16 @@ include 'layouts/top_nav.php';
                     <div class="info-item"><div class="info-label">Full Name</div><div class="info-value" id="val-full_name">Not Set</div></div>
                     <div class="info-item"><div class="info-label">Phone Number</div><div class="info-value" id="val-phone">Not Set</div></div>
                     <div class="info-item"><div class="info-label">Email</div><div class="info-value" id="val-email">...</div></div>
+                    <div class="info-item"><div class="info-label">City</div><div class="info-value" id="val-city">Not Set</div></div>
+                    <div class="info-item"><div class="info-label">Area</div><div class="info-value" id="val-area">Not Set</div></div>
                 </div>
             </div>
             <form class="section-content hidden" id="edit-personal">
                 <div class="form-grid">
-                    <div class="form-group"><label class="form-label">Full Name</label><input type="text" name="full_name" id="input-full_name" class="premium-input"></div>
-                    <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" name="phone" id="input-phone" class="premium-input"></div>
+                    <div class="form-group"><label class="form-label">Full Name</label><input type="text" name="full_name" id="input-full_name" class="premium-input" required pattern="[a-zA-Z\s]{3,50}" title="Only letters and spaces (3-50 chars)" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"></div>
+                    <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" name="phone" id="input-phone" class="premium-input" required pattern="[6-9][0-9]{9}" title="Valid 10-digit Indian mobile number" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,10)"></div>
+                    <div class="form-group"><label class="form-label">City</label><input type="text" name="city" id="input-city" class="premium-input" required placeholder="Enter your city"></div>
+                    <div class="form-group"><label class="form-label">Area</label><input type="text" name="area" id="input-area" class="premium-input" required placeholder="Enter your area"></div>
                 </div>
                 <div class="btn-group">
                     <button type="button" class="btn-cancel" onclick="toggleEdit('personal')">Cancel</button>
@@ -340,15 +519,15 @@ include 'layouts/top_nav.php';
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Vehicle Type</label>
-                        <select name="vehicle_type" id="input-vehicle_type" class="premium-input">
+                        <select name="vehicle_type" id="input-vehicle_type" class="premium-input" required>
                             <option value="">Select Type</option>
                             <option value="Bike">Bike</option>
                             <option value="Cycle">Cycle</option>
                             <option value="Scooter">Scooter</option>
                         </select>
                     </div>
-                    <div class="form-group"><label class="form-label">Vehicle Number</label><input type="text" name="vehicle_number" id="input-vehicle_number" class="premium-input"></div>
-                    <div class="form-group full"><label class="form-label">Driving License Number</label><input type="text" name="license_number" id="input-license_number" class="premium-input"></div>
+                    <div class="form-group"><label class="form-label">Vehicle Number</label><input type="text" name="vehicle_number" id="input-vehicle_number" class="premium-input" required></div>
+                    <div class="form-group full"><label class="form-label">Driving License Number</label><input type="text" name="license_number" id="input-license_number" class="premium-input" required></div>
                 </div>
                 <div class="btn-group">
                     <button type="button" class="btn-cancel" onclick="toggleEdit('vehicle')">Cancel</button>
@@ -372,11 +551,11 @@ include 'layouts/top_nav.php';
             </div>
             <form class="section-content hidden" id="edit-bank">
                 <div class="form-grid">
-                    <div class="form-group full"><label class="form-label">Bank Name</label><input type="text" name="bank_name" id="input-bank_name" class="premium-input"></div>
-                    <div class="form-group"><label class="form-label">Account Holder Name</label><input type="text" name="holder_name" id="input-holder_name" class="premium-input"></div>
-                    <div class="form-group"><label class="form-label">Account Number</label><input type="text" name="account_number" id="input-account_number" class="premium-input"></div>
-                    <div class="form-group"><label class="form-label">IFSC Code</label><input type="text" name="ifsc_code" id="input-ifsc_code" class="premium-input"></div>
-                    <div class="form-group"><label class="form-label">UPI ID (Optional)</label><input type="text" name="upi_id" id="input-upi_id" class="premium-input"></div>
+                    <div class="form-group full"><label class="form-label">Bank Name</label><input type="text" name="bank_name" id="input-bank_name" class="premium-input" required pattern="[a-zA-Z\s]{3,100}" title="Enter your official bank name" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"></div>
+                    <div class="form-group"><label class="form-label">Account Holder Name</label><input type="text" name="holder_name" id="input-holder_name" class="premium-input" required pattern="[a-zA-Z\s]{3,50}" title="Only letters and spaces" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')"></div>
+                    <div class="form-group"><label class="form-label">Account Number</label><input type="text" name="account_number" id="input-account_number" class="premium-input" required pattern="[0-9]{9,18}" title="9 to 18 digits" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
+                    <div class="form-group"><label class="form-label">IFSC Code</label><input type="text" name="ifsc_code" id="input-ifsc_code" class="premium-input" required pattern="[A-Z]{4}0[A-Z0-9]{6}" title="Standard 11-char IFSC code (e.g. SBIN0123456)" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0,11)"></div>
+                    <div class="form-group"><label class="form-label">UPI ID</label><input type="text" name="upi_id" id="input-upi_id" class="premium-input" required placeholder="example@upi" pattern="[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}" title="Enter a valid UPI ID (e.g. name@bank)"></div>
                 </div>
                 <div class="btn-group">
                     <button type="button" class="btn-cancel" onclick="toggleEdit('bank')">Cancel</button>
@@ -452,28 +631,42 @@ include 'layouts/top_nav.php';
             const fillWidth = activeIndex === 0 ? 0 : activeIndex === 1 ? 50 : 100;
             
             const fillEl = document.getElementById('status-line-fill');
-            fillEl.style.width = fillWidth + '%';
-            if (status === 'Rejected') {
-                fillEl.style.background = '#ef4444';
-            } else {
-                fillEl.style.background = 'var(--primary)';
+            if (fillEl) {
+                fillEl.style.width = fillWidth + '%';
+                if (status === 'Rejected') {
+                    fillEl.style.background = 'linear-gradient(90deg, #ef4444, #b91c1c)';
+                } else {
+                    fillEl.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+                }
             }
             
             steps.forEach((s, idx) => {
                 const el = document.getElementById(`step-${s}`);
+                if (!el) return;
+
+                el.classList.remove('active', 'current-step');
+                
                 if (idx <= activeIndex) {
                     el.classList.add('active');
-                    if (status === 'Rejected' && s === 'pending') {
-                        const circle = el.querySelector('.step-circle');
-                        const label = el.querySelector('span');
-                        circle.style.background = '#ef4444';
-                        circle.style.borderColor = '#ef4444';
+                }
+                
+                // Add current-step to only the exact current step for the pulse effect
+                if (idx === activeIndex) {
+                    el.classList.add('current-step');
+                }
+
+                if (status === 'Rejected' && s === 'pending') {
+                    const circle = el.querySelector('.step-circle');
+                    const label = el.querySelector('span');
+                    if (circle) {
+                        circle.style.background = 'linear-gradient(135deg, #ef4444, #b91c1c)';
+                        circle.style.borderColor = 'transparent';
                         circle.innerHTML = '<i data-lucide="x-circle"></i>';
+                    }
+                    if (label) {
                         label.textContent = 'Rejected';
                         label.style.color = '#ef4444';
                     }
-                } else {
-                    el.classList.remove('active');
                 }
             });
             if (window.lucide) lucide.createIcons();
@@ -515,6 +708,15 @@ include 'layouts/top_nav.php';
                 if (window.lucide) lucide.createIcons();
             }
 
+            // Update Update/Edit Buttons text
+            const isVerified = d.partner_status === 'Verified';
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.textContent = isVerified ? 'Request Change' : 'Update';
+                btn.style.background = isVerified ? '#fff7ed' : 'var(--primary-pale)';
+                btn.style.color = isVerified ? '#c2410c' : 'var(--primary)';
+                btn.style.borderColor = isVerified ? '#ffedd5' : 'rgba(26, 156, 62, 0.2)';
+            });
+
             // Redraw mapping
             const mapField = (id, val) => {
                 const view = document.getElementById(`val-${id}`);
@@ -524,6 +726,7 @@ include 'layouts/top_nav.php';
             }
 
             mapField('full_name', d.full_name); mapField('phone', d.phone); mapField('email', d.email);
+            mapField('city', d.city); mapField('area', d.area);
             mapField('vehicle_type', d.vehicle_type); mapField('vehicle_number', d.vehicle_number); mapField('license_number', d.license_number);
             ['bank_name', 'holder_name', 'account_number', 'ifsc_code', 'upi_id'].forEach(f => mapField(f, d[f]));
 
@@ -558,13 +761,49 @@ include 'layouts/top_nav.php';
             if (window.lucide) lucide.createIcons();
         }
 
+        function openSecurityModal(onConfirm) {
+            const modal = document.getElementById('securityModal');
+            const confirmBtn = document.getElementById('confirmSecurityBtn');
+            
+            modal.classList.add('open');
+            if (window.lucide) lucide.createIcons();
+            
+            confirmBtn.onclick = () => {
+                modal.classList.remove('open');
+                onConfirm();
+            };
+        }
+
+        function closeSecurityModal() {
+            document.getElementById('securityModal').classList.remove('open');
+        }
+
         function toggleEdit(section) {
-            document.getElementById(`view-${section}`).classList.toggle('hidden');
-            document.getElementById(`edit-${section}`).classList.toggle('hidden');
+            const isVerified = profileData && profileData.partner_status === 'Verified';
+            const editForm = document.getElementById(`edit-${section}`);
+            
+            const performToggle = () => {
+                document.getElementById(`view-${section}`).classList.toggle('hidden');
+                editForm.classList.toggle('hidden');
+            };
+
+            // Show warning only when opening the form for a verified user
+            if (isVerified && editForm.classList.contains('hidden')) {
+                openSecurityModal(performToggle);
+            } else {
+                performToggle();
+            }
         }
 
         async function saveProfile(section) {
             const form = document.getElementById(`edit-${section}`);
+            
+            // Client-side validation
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
             const formData = new FormData(form);
             showToast('Saving changes...');
             try {
@@ -618,5 +857,10 @@ include 'layouts/top_nav.php';
             setTimeout(() => { if(toast.parentNode) toast.remove(); }, 4000);
         }
     </script>
+<?php 
+echo '<script src="../assets/js/delivery.js?v=' . time() . '"></script>';
+include 'layouts/footer.php'; 
+?>
 </body>
 </html>
+

@@ -63,10 +63,16 @@ try {
         }
 
         if (move_uploaded_file($fileTmpPath, $destPath)) {
-            if ($image_url && file_exists('../../../' . $image_url)) {
-                @unlink('../../../' . $image_url);
+            // Verify file is not 0 bytes
+            if (filesize($destPath) > 0) {
+                if ($image_url && file_exists('../../../' . $image_url)) {
+                    @unlink('../../../' . $image_url);
+                }
+                $image_url = 'assets/images/shops/' . $newFileName;
+            } else {
+                unlink($destPath);
+                throw new Exception("Uploaded file is corrupt (0 bytes). Please try again.");
             }
-            $image_url = 'assets/images/shops/' . $newFileName;
         } else {
             throw new Exception('Failed to move uploaded file.');
         }

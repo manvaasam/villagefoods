@@ -2,19 +2,16 @@ Options -MultiViews -Indexes
 
 RewriteEngine On
 # ------------------------------------------------------------------------------------
-# IMPORTANT: FOR LOCALHOST USE: RewriteBase /new_food/
-# IMPORTANT: FOR LIVE SERVER USE: RewriteBase /
+# LIVE SERVER READY: RewriteBase should be / if site is in public_html root
 # ------------------------------------------------------------------------------------
-RewriteBase /new_food/
+RewriteBase /
 
 # 1. Redirect index.php to root
 RewriteRule ^index\.php$ ./ [R=301,L]
 
 # 2. Support Clean URLs (remove .php)
-# If the request matches a real file or directory, don't rewrite
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-# If the request with .php appended matches a real file, rewrite
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule ^(.+)$ $1.php [L]
 
@@ -29,16 +26,16 @@ Options -Indexes
 # 5. Security: Prevent script access to includes
 RewriteRule ^includes/.*$ - [F,L]
 
-# 6. Force HTTPS and WWW (DISABLED for Localhost compatibility)
-# RewriteCond %{HTTP_HOST} !^localhost$ [NC]
-# RewriteCond %{HTTP_HOST} !^127\.0\.0\.1$ [NC]
-# RewriteCond %{HTTPS} off
-# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# 6. Force HTTPS (Enabled for Live Server)
+RewriteCond %{HTTP_HOST} !^localhost$ [NC]
+RewriteCond %{HTTP_HOST} !^127\.0\.0\.1$ [NC]
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # 7. Robust Security Headers
 <IfModule mod_headers.c>
-    # 1. HSTS (Strict Transport Security) - DISABLED for Localhost
-    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    # 1. HSTS (Strict Transport Security) - Enabled
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     
     # 2. CSP (Content Security Policy)
     Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://unpkg.com https://nominatim.openstreetmap.org https://photon.komoot.io https://lumberjack-cx.razorpay.com https://www.google-analytics.com https://stats.g.doubleclick.net; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; object-src 'none';"

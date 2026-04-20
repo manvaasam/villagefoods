@@ -93,8 +93,8 @@ function requireRole($allowedRoles) {
             http_response_code(401);
             echo json_encode(['success' => false, 'error' => 'Authentication required']);
         } else {
-            // For browser page loads, redirect to login
-            header('Location: /new_food/login?redirect=' . urlencode($_SERVER['REQUEST_URI'] ?? '/'));
+            // Use root-relative path for login
+            header('Location: login?redirect=' . urlencode($_SERVER['REQUEST_URI'] ?? '/'));
         }
         exit;
     }
@@ -104,7 +104,7 @@ function requireRole($allowedRoles) {
             http_response_code(403);
             echo json_encode(['success' => false, 'error' => 'Forbidden: Insufficient permissions']);
         } else {
-            header('Location: /new_food/login?error=forbidden');
+            header('Location: login?error=forbidden');
         }
         exit;
     }

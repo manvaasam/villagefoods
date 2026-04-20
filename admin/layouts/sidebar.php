@@ -43,6 +43,7 @@
         </a>
         <a href="delivery-boys" class="admin-nav-item <?php echo $activePage == 'delivery' ? 'active' : ''; ?>">
           <span class="nav-icon"><i data-lucide="bike"></i></span> Delivery Boys
+          <span class="nav-badge" id="sidebarPartnerBadge" style="background:#f59e0b; color:white; display:none">0</span>
         </a>
         <a href="withdrawals" class="admin-nav-item <?php echo $activePage == 'withdrawals' ? 'active' : ''; ?>">
           <span class="nav-icon"><i data-lucide="banknote"></i></span> Payments

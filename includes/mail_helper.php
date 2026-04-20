@@ -129,8 +129,21 @@ class MailHelper {
         }
     }
 
+    private static function getBaseUrl() {
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        
+        // Common subdirectory for development
+        if ($host === 'localhost' || $host === '127.0.0.1') {
+            return "http://{$host}/new_food/";
+        }
+        
+        // For live servers, we assume root or detect from script
+        return "{$protocol}://{$host}/";
+    }
+
     private static function getCustomerTemplate($order, $items) {
-        $baseUrl = "http://localhost/new_food/"; // Change this to your live domain when deploying
+        $baseUrl = self::getBaseUrl();
         $itemsHtml = '';
         foreach ($items as $item) {
             $imgUrl = !empty($item['image_url']) ? $baseUrl . str_replace('../', '', $item['image_url']) : $baseUrl . "assets/images/placeholder.png";
@@ -194,7 +207,7 @@ class MailHelper {
 
                     <div style='padding: 20px; background: #fffaf0; border: 1px solid #feebc8; border-radius: 8px;'>
                         <h4 style='margin: 0 0 8px 0; color: #c05621; font-size: 14px;'>Delivery Information</h4>
-                        <p style='margin: 0; color: #7b341e; font-size: 13px; line-height: 1.5;'>{$order['delivery_address']}</p>
+                        <p style='margin: 0; color: #7b341e; font-size: 13px; line-height: 1.5;'>{$order['address']}</p>
                     </div>
                 </div>
                 <div style='background: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #edf2f7;'>
@@ -207,6 +220,7 @@ class MailHelper {
     }
 
     private static function getAdminTemplate($order, $items) {
+        $baseUrl = self::getBaseUrl();
         $itemsHtml = '';
         foreach ($items as $item) {
             $itemsHtml .= "
@@ -247,10 +261,10 @@ class MailHelper {
                     
                     <div style='margin-top: 24px;'>
                         <h4 style='color: #1e293b; margin-bottom: 8px;'>Delivery Address</h4>
-                        <p style='background: #fffbeb; border: 1px solid #fef3c7; padding: 12px; border-radius: 6px; font-size: 14px; color: #92400e; margin: 0;'>{$order['delivery_address']}</p>
+                        <p style='background: #fffbeb; border: 1px solid #fef3c7; padding: 12px; border-radius: 6px; font-size: 14px; color: #92400e; margin: 0;'>{$order['address']}</p>
                     </div>
 
-                    <a href='http://localhost/new_food/admin/orders.php' style='display: block; margin-top: 32px; padding: 16px; background: #1d4ed8; color: #ffffff; text-align: center; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;'>Process Order Now</a>
+                    <a href='{$baseUrl}admin/orders.php' style='display: block; margin-top: 32px; padding: 16px; background: #1d4ed8; color: #ffffff; text-align: center; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;'>Process Order Now</a>
                 </div>
             </div>
         </body>
@@ -258,6 +272,7 @@ class MailHelper {
     }
 
     private static function getStatusTemplate($order) {
+        $baseUrl = self::getBaseUrl();
         $statusColors = [
             'Pending' => ['bg' => '#f1f5f9', 'text' => '#475569'],
             'Placed' => ['bg' => '#eff6ff', 'text' => '#1d4ed8'],
@@ -291,7 +306,7 @@ class MailHelper {
 
                     <div style='margin-top: 32px; padding: 24px; border-top: 1px solid #f1f5f9;'>
                         <p style='color: #6b7280; font-size: 14px; margin: 0;'>You can track your order live on our website.</p>
-                        <a href='http://localhost/new_food/track-order.php?order_id={$order['order_number']}' style='display: inline-block; margin-top: 16px; padding: 12px 24px; background: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700;'>Track My Order</a>
+                        <a href='{$baseUrl}track-order.php?order_id={$order['order_number']}' style='display: inline-block; margin-top: 16px; padding: 12px 24px; background: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700;'>Track My Order</a>
                     </div>
                 </div>
                 <div style='background: #f9fafb; padding: 24px; text-align: center;'>
@@ -303,6 +318,7 @@ class MailHelper {
     }
 
     private static function getVerificationTemplate($user, $status) {
+        $baseUrl = self::getBaseUrl();
         $isVerified = $status === 'Verified';
         $title = $isVerified ? "Welcome to the Fleet!" : "Account Verification Update";
         $color = $isVerified ? "#10b981" : "#f59e0b";
@@ -324,7 +340,7 @@ class MailHelper {
                     <p style='color: #4b5563; font-size: 16px;'>Hi {$user['name']},</p>
                     <p style='color: #4b5563; font-size: 16px; line-height: 1.6;'>{$message}</p>
                     
-                    <a href='http://localhost/new_food/delivery/index.php' style='display: inline-block; margin-top: 32px; padding: 14px 28px; background: {$color}; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700;'>Go to Dashboard</a>
+                    <a href='{$baseUrl}delivery/index.php' style='display: inline-block; margin-top: 32px; padding: 14px 28px; background: {$color}; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700;'>Go to Dashboard</a>
                 </div>
                 <div style='background: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #edf2f7;'>
                     <p style='margin: 0; color: #9ca3af; font-size: 12px;'>Village Foods Delivery Partner Program</p>

@@ -1,9 +1,9 @@
 <?php
 // Database configuration
-$db_host = 'localhost:3307';
-$db_name = 'village_foods_new';
-$db_user = 'root';
-$db_pass = '';
+$db_host = '127.0.0.1:3306';
+$db_name = 'u865173473_village_food_F';
+$db_user = 'u865173473_village_food_F';
+$db_pass = '@Village_food_8';
 
 try {
     $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8", $db_user, $db_pass);

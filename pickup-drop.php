@@ -304,7 +304,7 @@ include 'includes/navbar.php';
         <div class="price-label">Estimated Price</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Based on distance · Final price may vary</div>
       </div>
-      <div class="price-value" id="estimatedPrice">₹30 – ₹70</div>
+      <div class="price-value" id="estimatedPrice">₹20 – ₹50</div>
     </div>
 
     <button class="form-btn" onclick="bookPickup()" style="margin-top:0"><i data-lucide="bike" style="margin-right:8px;vertical-align:middle"></i> Book Pickup Now</button>
@@ -330,7 +330,7 @@ include 'includes/navbar.php';
       <div class="feature-card">
         <div class="feature-icon"><i data-lucide="indian-rupee"></i></div>
         <div class="feature-title">Best Rates</div>
-        <div class="feature-desc">Starting from just ₹40. Transparent pricing with no hidden charges — ever.</div>
+        <div class="feature-desc">Starting from just ₹20. Transparent pricing with no hidden charges — ever.</div>
       </div>
     </div>
   </div>
@@ -474,8 +474,8 @@ include 'includes/navbar.php';
     let basePrice = window.RAPID_SETTINGS?.[settingsMap[selectedType]] || 30;
     const kmRate = window.RAPID_SETTINGS?.km_rate || 10;
 
-    if (distance > 2) {
-        basePrice += (distance - 2) * kmRate;
+    if (distance > 3) {
+        basePrice += (distance - 3) * kmRate;
     }
     
     const multipliers = { bike: 1.0, eco: 1.5, express: 2.0 };

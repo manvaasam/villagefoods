@@ -55,6 +55,13 @@
           <option value="1">Yes, Top Selling Item</option>
         </select>
       </div>
+      <div class="form-group">
+        <label class="form-label">Product Status</label>
+        <select class="form-input" id="prodStatus">
+          <option value="active">Active (Available)</option>
+          <option value="inactive">Inactive (Hidden)</option>
+        </select>
+      </div>
     </div>
     <button class="form-btn" onclick="ProductAdmin.save()"><i data-lucide="save"></i> Save Product</button>
   </div>
@@ -376,17 +383,12 @@
   gtag('config', 'G-FDCG4L7ZZ4');
 </script>
 <script src="../assets/js/utils.js"></script>
-<script src="../assets/js/admin.js?v=2.1"></script>
+<script src="../assets/js/admin.js?v=2.3"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
     }
-    window.addEventListener('load', () => {
-      if (typeof NotificationEngine !== 'undefined') {
-        NotificationEngine.init();
-      }
-    });
   });
 </script>
 </body>

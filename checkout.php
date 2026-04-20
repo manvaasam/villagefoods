@@ -10,6 +10,9 @@ $isSimplified = true;
 include 'includes/navbar.php';
 ?>
 
+<!-- Razorpay Checkout Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <main class="container checkout-container">
     <div class="checkout-wrapper">
         <div class="section-header" style="margin-bottom:32px">
@@ -361,7 +364,7 @@ include 'includes/navbar.php';
                         "email": orderData.user.email,
                         "contact": orderData.user.phone
                     },
-                    "theme": { "color": "#1a9c3e" },
+                    "theme": { "color": "#ff4a38" },
                     "modal": {
                         "ondismiss": function() {
                             if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }

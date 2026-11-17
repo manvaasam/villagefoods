@@ -144,7 +144,7 @@ const DeliveryConsole = (() => {
 
         // State-based Audio Alert: Ring continuously until picked up or accepted
         const needsRinging = availableRapid.length > 0 || 
-                             rapidOrders.some(o => o.status === 'Accepted' || o.status === 'Assigned') ||
+                             rapidOrders.some(o => ['assigned'].includes((o.status || '').toLowerCase())) ||
                              orders.some(o => ['Placed', 'Confirmed', 'Preparing', 'Ready for Pickup'].includes(o.status));
 
         if (needsRinging) {
@@ -341,14 +341,62 @@ const DeliveryConsole = (() => {
     }
 
     function renderRapidCard(o) {
-        const isDone = ['Completed', 'Cancelled'].includes(o.status);
-        const nextAction = getRapidNextAction(o.status);
+        const dbStatus = (o.status || '').toLowerCase();
+        const isDone = ['completed', 'rejected', 'cancelled'].includes(dbStatus);
+        
+        let actionHtml = '';
+        if (dbStatus === 'assigned') {
+            actionHtml = `
+                <button class="db-action-btn db-action-primary" style="grid-column: span 12; background:#f97316" onclick="DeliveryConsole.acceptRapid(${o.id})">
+                    <i data-lucide="check-circle" style="width:16px;height:16px;margin-right:6px"></i> 
+                    Accept Order
+                </button>
+            `;
+        } else if (!isDone) {
+            const nextAction = getRapidNextAction(dbStatus);
+            if (nextAction) {
+                let checkboxHtml = '';
+                if (nextAction.status === 'completed') {
+                    checkboxHtml = `
+                        <div style="background:#fff7ed; padding:12px; border-radius:12px; border:1px dashed #f97316; margin-bottom: 12px;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                <input type="checkbox" id="rapid_cash_collected_${o.id}" style="width:18px; height:18px; accent-color:#f97316;">
+                                <span style="font-size:12px; font-weight:800; color:#9a3412;">I have collected ₹${o.price || 0} cash</span>
+                            </label>
+                        </div>
+                    `;
+                }
+
+                actionHtml = `
+                    ${checkboxHtml}
+                    <button class="db-action-btn db-action-primary" style="grid-column: span 12; width: 100%" onclick="DeliveryConsole.updateRapidStatus(${o.id}, '${nextAction.status}')">
+                        <i data-lucide="${nextAction.icon}" style="width:16px;height:16px;margin-right:6px"></i> 
+                        ${nextAction.label}
+                    </button>
+                `;
+            }
+        }
+
         return `
             <div class="db-order-card rapid-active" style="border-left: 4px solid var(--primary);">
                 <div class="db-order-header">
                     <div class="db-order-id">RAPID #${o.id}</div>
-                    <div class="db-order-badge badge-active">${o.status}</div>
+                    <div class="db-order-badge badge-active" style="text-transform: capitalize;">${o.status}</div>
                 </div>
+                
+                <div class="db-order-items" style="margin: 10px 0 6px 0; font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="package" style="width:16px;height:16px;color:#f97316"></i> 
+                    ${o.item_description || 'General Package'}
+                </div>
+                
+                <div style="background:#fff7ed; color:#ea580c; border: 1px solid #ffedd5; padding: 10px 12px; border-radius: 10px; font-size: 14px; font-weight: 900; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="banknote" style="width:18px;height:18px"></i>
+                        Collect Cash
+                    </div>
+                    <span>₹${o.price || 0}</span>
+                </div>
+
                 <!-- Delivery Timer -->
                 <div class="timer-display" style="margin: 10px 0; background: var(--bg-dark); padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px;">
                     <i data-lucide="timer" style="width:14px; height:14px; color:var(--primary)"></i>
@@ -366,9 +414,11 @@ const DeliveryConsole = (() => {
                                 <button class="mini-action-btn" onclick="DeliveryConsole.openMap('${o.pickup_address}', ${o.pickup_lat}, ${o.pickup_lng})">
                                     <i data-lucide="map-pin"></i> Map
                                 </button>
-                                <button class="mini-action-btn" onclick="window.location.href='tel:${o.customer_phone || ''}'">
+                                ${!isDone ? `
+                                <a href="tel:${o.customer_phone || ''}" class="mini-action-btn" style="text-decoration:none">
                                     <i data-lucide="phone"></i> Call
-                                </button>
+                                </a>
+                                ` : ''}
                             </div>
                         </div>
                         <div class="route-line" style="margin: 12px 0;"></div>
@@ -379,20 +429,17 @@ const DeliveryConsole = (() => {
                                 <button class="mini-action-btn" onclick="DeliveryConsole.openMap('${o.drop_address}', ${o.drop_lat}, ${o.drop_lng})">
                                     <i data-lucide="map-pin"></i> Map
                                 </button>
-                                <button class="mini-action-btn" onclick="window.location.href='tel:${o.customer_phone || ''}'">
+                                ${!isDone ? `
+                                <a href="tel:${o.customer_phone || ''}" class="mini-action-btn" style="text-decoration:none">
                                     <i data-lucide="phone"></i> Call
-                                </button>
+                                </a>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="db-order-actions" style="margin-top:16px; border-top:1px dashed var(--border); padding-top:12px;">
-                    ${!isDone && nextAction ? `
-                        <button class="db-action-btn db-action-primary" style="grid-column: span 12" onclick="DeliveryConsole.updateRapidStatus(${o.id}, '${nextAction.status}')">
-                            <i data-lucide="${nextAction.icon}" style="width:16px;height:16px;margin-right:6px"></i> 
-                            ${nextAction.label}
-                        </button>
-                    ` : ''}
+                    ${actionHtml}
                 </div>
             </div>
         `;
@@ -463,9 +510,11 @@ const DeliveryConsole = (() => {
                                 <button class="mini-action-btn" onclick="DeliveryConsole.openMap('${o.shop_address || 'Village Foods Hub'}', ${o.shop_lat}, ${o.shop_lng})">
                                     <i data-lucide="map-pin"></i> Map
                                 </button>
-                                <button class="mini-action-btn" onclick="window.location.href='tel:${o.shop_phone || ''}'">
+                                ${!isDone ? `
+                                <a href="tel:${o.shop_phone || ''}" class="mini-action-btn" style="text-decoration:none">
                                     <i data-lucide="phone"></i> Call Shop
-                                </button>
+                                </a>
+                                ` : ''}
                             </div>
                         </div>
                         <div class="route-line" style="margin: 12px 0;"></div>
@@ -477,9 +526,11 @@ const DeliveryConsole = (() => {
                                 <button class="mini-action-btn" onclick="DeliveryConsole.openMap('${o.address}', ${o.latitude}, ${o.longitude})">
                                     <i data-lucide="map-pin"></i> Map
                                 </button>
-                                <button class="mini-action-btn" onclick="window.location.href='tel:${o.customer_phone || ''}'">
+                                ${!isDone ? `
+                                <a href="tel:${o.customer_phone || ''}" class="mini-action-btn" style="text-decoration:none">
                                     <i data-lucide="phone"></i> Call Customer
-                                </button>
+                                </a>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -529,10 +580,10 @@ const DeliveryConsole = (() => {
     }
 
     function getRapidNextAction(status) {
-        switch(status) {
-            case 'Accepted': return { label: 'Picked', status: 'Picked', icon: 'package' };
-            case 'Picked': return { label: 'On Way', status: 'Delivering', icon: 'bike' };
-            case 'Delivering': return { label: 'Completed', status: 'Completed', icon: 'check-circle' };
+        if (!status) return null;
+        switch(status.toLowerCase()) {
+            case 'accepted': return { label: 'Picked Up', status: 'picked', icon: 'package' };
+            case 'picked': return { label: 'Mark Completed', status: 'completed', icon: 'check-circle' };
             default: return null;
         }
     }
@@ -541,7 +592,7 @@ const DeliveryConsole = (() => {
         try {
             const res = await fetch('../api/delivery/accept_rapid_order.php', {
                 method: 'POST',
-                body: JSON.stringify({ rapid_id: id })
+                body: JSON.stringify({ id: id })
             });
             const result = await res.json();
             if (result.success) {
@@ -590,10 +641,19 @@ const DeliveryConsole = (() => {
     }
 
     async function updateRapidStatus(rapidId, newStatus) {
+        if (newStatus === 'completed') {
+            const check = document.getElementById(`rapid_cash_collected_${rapidId}`);
+            if (check && !check.checked) {
+                if (typeof Toast !== 'undefined') Toast.show("Please confirm cash collection first", "warning");
+                else alert("Please confirm cash collection first");
+                return;
+            }
+        }
+
         try {
             const res = await fetch('../api/delivery/update_rapid_status.php', {
                 method: 'POST',
-                body: JSON.stringify({ rapid_id: rapidId, status: newStatus })
+                body: JSON.stringify({ id: rapidId, status: newStatus })
             });
             const result = await res.json();
             if (result.success) {

@@ -1,5 +1,7 @@
     <!-- Utility Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/pwa.js"></script>
     <?php 
     if (isset($extraScripts) && is_string($extraScripts) && trim($extraScripts) !== '') {
         echo $extraScripts;

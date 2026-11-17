@@ -15,7 +15,7 @@ try {
               FROM products p 
               LEFT JOIN categories c ON p.category_id = c.id 
               LEFT JOIN shops s ON p.shop_id = s.id
-              WHERE p.is_available = 1';
+              WHERE p.is_available = 1 AND p.status = "active"';
     $params = [$user_id];
 
     if ($category_slug !== 'all') {

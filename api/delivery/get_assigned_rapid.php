@@ -27,7 +27,8 @@ try {
 
     $partner_id = $partner['id'];
 
-    $query = "SELECT r.*, u.name as customer_name, u.phone as customer_phone 
+    $query = "SELECT r.*, u.name as customer_name, 
+                     COALESCE(NULLIF(u.phone, ''), (SELECT contact_number FROM user_addresses WHERE user_id = u.id ORDER BY id DESC LIMIT 1)) as customer_phone 
               FROM rapid_orders r 
               JOIN users u ON r.customer_id = u.id 
               WHERE r.delivery_boy_id = ?";

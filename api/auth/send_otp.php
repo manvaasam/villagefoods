@@ -1,10 +1,7 @@
 <?php
 session_start();
 require_once '../../includes/db.php';
-require_once '../../vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+require_once '../../includes/sms_helper.php';
 
 header('Content-Type: application/json');
 
@@ -14,14 +11,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$email = $data['email'] ?? '';
-$name = $data['name'] ?? '';
+if (!$data) {
+    $data = $_POST;
+}
 
-// Store name in session temporarily for user creation/update in verify_otp
-$_SESSION['temp_name'] = $name;
+$phoneInput = trim($data['phone'] ?? ($data['email'] ?? ''));
+$name = trim($data['name'] ?? '');
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
+// 1. Sanitize to 10-digit Indian phone number
+$phone = preg_replace('/[^0-9]/', '', $phoneInput);
+if (strlen($phone) === 12 && str_starts_with($phone, '91')) {
+    $phone = substr($phone, 2);
+} elseif (strlen($phone) === 11 && str_starts_with($phone, '0')) {
+    $phone = substr($phone, 1);
+}
+
+if (!preg_match('/^[6-9]\d{9}$/', $phone)) {
+    echo json_encode(['status' => 'error', 'message' => 'Please enter a valid 10-digit mobile number']);
     exit;
 }
 
@@ -30,83 +36,74 @@ if (!empty($name) && !preg_match("/^[a-zA-Z\s]*$/", $name)) {
     exit;
 }
 
-// Check if user exists and has a staff role
-$stmt = $pdo->prepare("SELECT role FROM users WHERE email = ?");
-$stmt->execute([$email]);
+// Store name & phone in session temporarily for user creation/update in verify_otp
+$_SESSION['temp_name'] = $name;
+$_SESSION['temp_phone'] = $phone;
+
+// Check if user exists and has a staff role (admin/delivery/vendor)
+$stmt = $pdo->prepare("SELECT role FROM users WHERE phone = ? AND is_deleted = 0");
+$stmt->execute([$phone]);
 $userRole = $stmt->fetchColumn();
 
 if ($userRole && $userRole !== 'customer') {
     $portal = ($userRole === 'delivery') ? 'Partner Portal (/delivery)' : 'Admin Panel (/admin)';
     echo json_encode([
         'status' => 'error', 
-        'message' => "Staff detected. Please use the {$portal} to login."
+        'message' => "Staff account detected. Please login using {$portal}."
     ]);
     exit;
 }
 
 try {
-    // Generate 6-digit OTP
-    $otp = sprintf("%06d", mt_rand(0, 999999));
+    // Ensure column 'phone' exists in 'otps' table
+    try {
+        $stmtCheck = $pdo->query("SHOW COLUMNS FROM otps LIKE 'phone'");
+        if (!$stmtCheck->fetch()) {
+            $pdo->exec("ALTER TABLE otps ADD COLUMN phone VARCHAR(20) NULL AFTER id, MODIFY COLUMN email VARCHAR(191) NULL");
+        }
+    } catch (\Throwable $ex) {
+        // Continue if column already exists
+    }
 
-    // Check for resend cooldown (1 minute)
-    $stmt = $pdo->prepare("SELECT TIMESTAMPDIFF(SECOND, last_sent_at, NOW()) as diff FROM otps WHERE email = ?");
-    $stmt->execute([$email]);
+    // Generate 6-digit OTP
+    $otp = sprintf("%06d", mt_rand(100000, 999999));
+
+    // Check for resend cooldown (60 seconds)
+    $stmt = $pdo->prepare("SELECT TIMESTAMPDIFF(SECOND, last_sent_at, NOW()) as diff FROM otps WHERE phone = ?");
+    $stmt->execute([$phone]);
     $diff = $stmt->fetchColumn();
 
-    if ($diff !== false && $diff < 60) {
+    if ($diff !== false && $diff !== null && $diff < 60) {
         $wait = 60 - $diff;
-        echo json_encode(['status' => 'error', 'message' => "Please wait $wait seconds before resending."]);
+        echo json_encode(['status' => 'error', 'message' => "Please wait {$wait} seconds before resending."]);
         exit;
     }
 
-    // Store/Update OTP
-    $stmt = $pdo->prepare("DELETE FROM otps WHERE email = ?");
-    $stmt->execute([$email]);
-    $stmt = $pdo->prepare("INSERT INTO otps (email, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))");
-    $stmt->execute([$email, $otp]);
+    // Delete existing OTP for this phone
+    $stmt = $pdo->prepare("DELETE FROM otps WHERE phone = ?");
+    $stmt->execute([$phone]);
 
-    // Use require instead of require_once to get the array reliably
-    $mailConfig = require '../../includes/mail_config.php';
+    // Store new OTP with 5 minute expiration
+    $stmt = $pdo->prepare("INSERT INTO otps (phone, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))");
+    $stmt->execute([$phone, $otp]);
 
-    $mail = new PHPMailer(true);
-    // Server settings
-    $mail->isSMTP();
-    $mail->Host       = $mailConfig['host'];
-    $mail->SMTPAuth   = $mailConfig['auth'];
-    $mail->Username   = $mailConfig['username'];
-    $mail->Password   = $mailConfig['password'];
-    $mail->SMTPSecure = $mailConfig['secure'];
-    $mail->Port       = $mailConfig['port'];
+    // Send SMS via Fast2SMS
+    $smsResult = send_sms_otp($phone, $otp);
 
-    // Recipients
-    $mail->setFrom($mailConfig['from_email'], $mailConfig['from_name']);
-    $mail->addAddress($email);
-
-    // Content
-    $mail->isHTML(true);
-    $mail->Subject = 'Your Village Foods Login OTP';
-    $mail->Body    = "
-        <div style='font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; max-width: 500px;'>
-            <h2 style='color: #27ae60;'>Village Foods</h2>
-            <p>Hello" . ($name ? " " . htmlspecialchars($name) : "") . ",</p>
-            <p>Your One-Time Password (OTP) for logging into Village Foods is:</p>
-            <div style='font-size: 24px; font-weight: bold; color: #333; letter-spacing: 5px; margin: 20px 0;'>$otp</div>
-            <p style='color: #666; font-size: 12px;'>This OTP is valid for 5 minutes. Please do not share this code with anyone.</p>
-            <hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>
-            <p style='font-size: 10px; color: #999;'>Sent with ❤️ from Village Foods Team</p>
-        </div>
-    ";
-    $mail->AltBody = "Your Village Foods OTP is: $otp. Valid for 5 minutes.";
-
-    if($mail->send()) {
-        echo json_encode(['status' => 'success', 'message' => 'OTP sent to your email!']);
+    if ($smsResult['success']) {
+        echo json_encode([
+            'status' => 'success', 
+            'message' => "OTP sent successfully to +91 {$phone}!"
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => $smsResult['message']
+        ]);
     }
 
-} catch (Exception $e) {
-    echo json_encode(['status' => 'error', 'message' => "Mail error: " . $e->getMessage()]);
 } catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => "Database error: " . $e->getMessage()]);
-} catch (Error $e) {
-    echo json_encode(['status' => 'error', 'message' => "System error: " . $e->getMessage()]);
+    echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+} catch (\Throwable $e) {
+    echo json_encode(['status' => 'error', 'message' => 'System error: ' . $e->getMessage()]);
 }
-?>

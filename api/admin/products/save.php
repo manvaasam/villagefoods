@@ -14,6 +14,8 @@ try {
     $stock = !empty($_POST['stock']) ? (int) $_POST['stock'] : 100;
     $rating = isset($_POST['rating']) ? (float) $_POST['rating'] : 4.5;
     $is_bestseller = isset($_POST['is_bestseller']) ? (int) $_POST['is_bestseller'] : 0;
+    $status = !empty($_POST['status']) ? $_POST['status'] : 'active';
+
 
     // Clamp rating between 0 and 5
     $rating = max(0, min(5, $rating));
@@ -62,15 +64,15 @@ try {
     if ($id) {
         $stmt = $pdo->prepare('UPDATE products SET 
             name = ?, category_id = ?, shop_id = ?, price = ?, old_price = ?, 
-            unit = ?, stock = ?, rating = ?, image_url = ?, is_bestseller = ?
+            unit = ?, stock = ?, rating = ?, image_url = ?, is_bestseller = ?, status = ?
             WHERE id = ?');
-        $stmt->execute([$name, $category_id, $shop_id, $price, $old_price, $unit, $stock, $rating, $image_url, $is_bestseller, $id]);
+        $stmt->execute([$name, $category_id, $shop_id, $price, $old_price, $unit, $stock, $rating, $image_url, $is_bestseller, $status, $id]);
         $message = 'Product updated successfully';
     } else {
         $stmt = $pdo->prepare('INSERT INTO products 
-            (name, category_id, shop_id, price, old_price, unit, stock, rating, image_url, is_bestseller) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$name, $category_id, $shop_id, $price, $old_price, $unit, $stock, $rating, $image_url, $is_bestseller]);
+            (name, category_id, shop_id, price, old_price, unit, stock, rating, image_url, is_bestseller, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$name, $category_id, $shop_id, $price, $old_price, $unit, $stock, $rating, $image_url, $is_bestseller, $status]);
         $id = $pdo->lastInsertId();
         $message = 'Product added successfully';
     }

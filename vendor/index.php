@@ -23,6 +23,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vendor Login — Village Foods</title>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -51,7 +52,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
             padding: 48px 40px 40px;
             border-radius: 28px;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05),
-                        0 20px 60px -10px rgba(26,156,62,0.12);
+                        0 20px 60px -10px rgba(255, 74, 56,0.12);
             text-align: center;
         }
 
@@ -70,7 +71,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
             gap: 6px;
             background: #f0fdf4;
             color: #1a9c3e;
-            border: 1px solid rgba(26,156,62,0.25);
+            border: 1px solid rgba(26, 156, 62, 0.25);
             padding: 5px 14px;
             border-radius: 99px;
             font-size: 12px;
@@ -125,7 +126,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
         input:focus {
             border-color: #1a9c3e;
             background: #fff;
-            box-shadow: 0 0 0 4px rgba(26,156,62,0.08);
+            box-shadow: 0 0 0 4px rgb(52 235 85 / 8%);
         }
 
         .pw-wrap { position: relative; }
@@ -146,7 +147,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
             transition: color 0.2s;
         }
 
-        .pw-toggle:hover { color: #1a9c3e; }
+        .pw-toggle:hover { color: #ff4a38; }
 
         .login-btn {
             width: 100%;
@@ -162,12 +163,12 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
             transition: all 0.2s;
             margin-top: 8px;
             letter-spacing: 0.2px;
-            box-shadow: 0 4px 15px rgba(26,156,62,0.3);
+            box-shadow: 0 0 0 4px rgb(52 235 85 / 8%);
         }
 
         .login-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(26,156,62,0.4);
+            box-shadow: 0 0 0 4px rgb(52 235 85 / 8%);
         }
 
         .login-btn:active { transform: translateY(0); }
@@ -183,7 +184,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
             transition: color 0.2s;
         }
 
-        .back-link:hover { color: #1a9c3e; }
+        .back-link:hover { color: #ff4a38; }
 
         .toast {
             position: fixed;
@@ -213,7 +214,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
         <div class="logo-wrap">
             <img src="../assets/images/logo/VillageFoods Delivery Logo.png" alt="Village Foods" class="logo">
             <div class="badge">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Vendor Portal
             </div>
         </div>
@@ -241,9 +242,15 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
         </form>
 
         <a href="../" class="back-link">← Back to main site</a>
+
+        <button id="pwa-install-btn" onclick="installPWA()" style="display: flex; width: 100%; margin-top: 24px; padding: 12px; border: 1.5px solid #1a9c3e; background: transparent; color: #1a9c3e; border-radius: 14px; font-weight: 700; font-size: 14px; cursor: pointer; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; font-family: 'Sora', sans-serif;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download App
+        </button>
     </div>
     </div><!-- /.login-wrapper -->
 
+    <script src="../assets/js/pwa.js"></script>
     <div id="toast" class="toast"></div>
 
     <script>
@@ -287,7 +294,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
                 if (data.status === 'success') {
                     const role = data.role || '';
                     if (role === 'vendor' || role === 'admin' || role === 'super_admin') {
-                        showToast('Welcome back! Redirecting...', '#1a9c3e');
+                        showToast('Welcome back! Redirecting...', '#ff4a38');
                         setTimeout(() => window.location.href = 'dashboard', 800);
                     } else {
                         showToast('Access denied. This portal is for vendors only.');

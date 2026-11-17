@@ -1,7 +1,12 @@
 <?php
 require_once 'includes/db.php';
 $category_id = isset($_GET['category_id']) ? intval($_GET['category_id']) : null;
+$category_slug = isset($_GET['slug']) ? htmlspecialchars($_GET['slug']) : null;
 $category_name = isset($_GET['name']) ? htmlspecialchars($_GET['name']) : 'Category';
+
+if ($category_slug && !$category_id && $category_name === 'Category') {
+    $category_name = ucwords(str_replace('-', ' ', $category_slug));
+}
 
 $pageTitle = "$category_name — Village Foods";
 include 'includes/header.php';
@@ -38,13 +43,18 @@ include 'includes/navbar.php';
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
     const categoryId = <?php echo json_encode($category_id); ?>;
-    if (!categoryId) {
+    const categorySlug = <?php echo json_encode($category_slug); ?>;
+    if (!categoryId && !categorySlug) {
         window.location.href = 'index.php';
         return;
     }
 
     try {
-        const resp = await fetch(`api/shops/list.php?category_id=${categoryId}`);
+        let apiUrl = 'api/shops/list.php?';
+        if (categoryId) apiUrl += `category_id=${categoryId}`;
+        else if (categorySlug) apiUrl += `category_slug=${categorySlug}`;
+        
+        const resp = await fetch(apiUrl);
         const data = await resp.json();
         const container = document.getElementById('categoryShopsGrid');
         const header = document.getElementById('shopCountHeader');

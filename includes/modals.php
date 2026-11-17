@@ -50,7 +50,7 @@
     <div class="modal-title" id="loginModalTitle" style="text-align:center">Welcome to Village Foods</div>
     <div class="modal-sub" id="loginModalSub" style="text-align:center">Sign in to sync your cart and checkout</div>
     
-    <!-- Email/Name View -->
+    <!-- Phone/Name View -->
     <div id="emailView">
         <div class="form-group" id="nameFieldGroup">
             <label class="form-label">Full Name</label>
@@ -58,10 +58,15 @@
             <div class="invalid-feedback" id="loginNameError" style="display:none"></div>
         </div>
         <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input class="form-input" type="email" id="loginEmail" placeholder="name@example.com">
+            <label class="form-label">Mobile Number</label>
+            <div style="display:flex; align-items:center; border:1.5px solid #e2e8f0; border-radius:12px; background:white; overflow:hidden;">
+                <span style="padding:0 12px; background:#f8fafc; color:#64748b; font-weight:700; border-right:1px solid #e2e8f0; font-size:14px; height:46px; display:flex; align-items:center;">+91</span>
+                <input class="form-input" type="tel" id="loginPhone" placeholder="10-digit mobile number" maxlength="10" style="border:none; border-radius:0; height:46px; width:100%; box-shadow:none;">
+            </div>
+            <!-- Keep hidden loginEmail for backwards compatibility if needed -->
+            <input type="hidden" id="loginEmail" value="">
         </div>
-        <button class="form-btn" id="btnSendOtp" onclick="Auth.handleLoginStep()">Continue</button>
+        <button class="form-btn" id="btnSendOtp" onclick="Auth.handleLoginStep()">Get OTP via SMS</button>
     </div>
 
     <!-- OTP View (Hidden Initially) -->
@@ -70,15 +75,15 @@
             <label class="form-label">Enter 6-digit OTP</label>
             <div style="display:flex; gap:8px; justify-content:center">
                 <input class="form-input" style="text-align:center; font-size:24px; letter-spacing:8px; width:200px" 
-                       type="text" id="loginOtp" maxlength="6" placeholder="000000">
+                       type="text" id="loginOtp" maxlength="6" placeholder="000000" inputmode="numeric">
             </div>
             <div style="font-size:12px; text-align:center; margin-top:8px; color:var(--text-muted)">
-                OTP sent to <strong id="displayEmail"></strong> 
-                <a href="javascript:void(0)" onclick="Auth.showEmailView()" style="color:var(--primary); text-decoration:none; margin-left:4px; font-weight:700">Edit</a>
+                OTP sent via SMS to <strong id="displayEmail"></strong> 
+                <a href="javascript:void(0)" onclick="Auth.showEmailView()" style="color:var(--primary); text-decoration:none; margin-left:4px; font-weight:700">Change</a>
             </div>
         </div>
         <button class="form-btn" id="btnVerifyOtp" onclick="Auth.verifyOtp()">Verify & Continue</button>
-        <div class="form-link">Didn't receive code? <a href="javascript:void(0)" onclick="Auth.sendOtp()">Resend</a></div>
+        <div class="form-link">Didn't receive SMS? <a href="javascript:void(0)" onclick="Auth.sendOtp()">Resend</a></div>
     </div>
 
     <div class="form-link" style="margin-top:20px; font-size:11px">By continuing, you agree to our <a href="#">Terms</a> & <a href="#">Privacy Policy</a></div>

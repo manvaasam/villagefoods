@@ -15,6 +15,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
     <link rel="stylesheet" href="../assets/css/variables.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/font/lucide.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
     <style>
         :root {
             --bg-dark: #020617;
@@ -73,7 +74,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
             -webkit-backdrop-filter: blur(40px);
             border: 1px solid var(--border);
             border-radius: 40px;
-            padding: 48px;
+            padding: 32px 40px;
             box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.7);
             text-align: center;
             animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
@@ -87,16 +88,16 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
         .logo-box {
             display: inline-flex;
             background: linear-gradient(135deg, #064e3b, #059669);
-            padding: 20px;
-            border-radius: 24px;
-            margin-bottom: 24px;
+            padding: 18px;
+            border-radius: 20px;
+            margin-bottom: 20px;
             box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.3);
         }
 
-        .logo-box i { font-size: 32px; color: white; }
+        .logo-box i { font-size: 28px; color: white; }
 
         h1 {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
             margin: 0;
             letter-spacing: -1px;
@@ -107,13 +108,13 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
 
         p {
             color: var(--text-dim);
-            font-size: 16px;
-            margin: 12px 0 36px;
+            font-size: 15px;
+            margin: 8px 0 28px;
         }
 
         .form-group {
             text-align: left;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .form-label {
@@ -121,7 +122,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
             font-size: 11px;
             font-weight: 700;
             color: #64748b;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -145,7 +146,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
             background: rgba(2, 6, 23, 0.6);
             border: 1px solid var(--border);
             border-radius: 18px;
-            padding: 16px 16px 16px 54px;
+            padding: 14px 16px 14px 50px;
             color: white;
             font-family: inherit;
             font-size: 15px;
@@ -164,7 +165,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
 
         .login-btn {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
@@ -187,7 +188,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
         }
 
         .footer-links {
-            margin-top: 40px;
+            margin-top: 32px;
             color: var(--text-dim);
             font-size: 14px;
         }
@@ -202,7 +203,7 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
 
         .support-link {
             display: block;
-            margin-top: 14px;
+            margin-top: 10px;
             font-size: 13px;
             opacity: 0.6;
         }
@@ -255,8 +256,14 @@ if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'delivery') {
             Don't have an account? <a href="signup.php">Register as Partner</a>
             <a href="#" class="support-link">Difficulty logging in? Contact Support</a>
         </div>
+
+        <button id="pwa-install-btn" onclick="installPWA()" style="display: flex; width: 100%; margin-top: 24px; padding: 12px; border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 14px; font-weight: 700; font-size: 14px; cursor: pointer; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;">
+            <i class="lucide-download"></i>
+            Download App
+        </button>
     </div>
 
+    <script src="../assets/js/pwa.js"></script>
     <script>
         const Toast = {
             show: (msg, type = 'success') => {

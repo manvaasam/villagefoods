@@ -23,8 +23,10 @@ try {
         exit;
     }
 
-    $query = "SELECT o.*, u.name as customer_name, u.email as customer_email, u.phone as customer_phone, 
+    $query = "SELECT o.*, u.name as customer_name, u.email as customer_email, 
+                     COALESCE(NULLIF(u.phone, ''), (SELECT contact_number FROM user_addresses WHERE user_id = u.id ORDER BY id DESC LIMIT 1)) as customer_phone,
                      s.shop_name, s.address as shop_address, s.phone as shop_phone,
+
                      s.latitude as shop_lat, s.longitude as shop_lng 
               FROM orders o 
               JOIN users u ON o.user_id = u.id 

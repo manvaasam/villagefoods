@@ -15,8 +15,8 @@ if ($user_id) {
 echo json_encode([
     'logged_in' => $_SESSION['logged_in'] ?? false,
     'email' => $_SESSION['user_email'] ?? null,
+    'phone' => $_SESSION['user_phone'] ?? null,
     'name' => $_SESSION['user_name'] ?? null,
     'role' => $_SESSION['user_role'] ?? 'customer',
     'address' => $address
 ]);
-?>

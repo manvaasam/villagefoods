@@ -147,9 +147,14 @@ const ProductRenderer = (() => {
       <div class="product-card fade-in-up ${isOutOfStock ? 'out-of-stock' : ''}" data-id="${id}" data-cat="${product.category_slug}">
         <div class="product-img-wrap">
           ${imageHtml}
-          <button class="wishlist-btn ${product.in_wishlist > 0 ? 'active' : ''}" onclick="Wishlist.toggle(event, ${id})">
-            <i data-lucide="heart" class="${product.in_wishlist > 0 ? 'heart-filled' : ''}"></i>
-          </button>
+          <div class="product-action-group">
+            <button class="wishlist-btn ${product.in_wishlist > 0 ? 'active' : ''}" onclick="Wishlist.toggle(event, ${id})">
+              <i data-lucide="heart" class="${product.in_wishlist > 0 ? 'heart-filled' : ''}"></i>
+            </button>
+            <button class="share-btn" onclick="shareProduct(event, ${id}, '${Utils.escapeHTML(name).replace(/'/g, "\\'")}', '${price}')">
+              <i data-lucide="share-2" style="width:15px; height:15px;"></i>
+            </button>
+          </div>
           ${isOutOfStock ? `<div class="product-badge danger">Out of Stock</div>` : (badge ? `<div class="product-badge ${badge_type || ""}">${badge}</div>` : "")}
         </div>
         <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--primary); margin-bottom:4px; margin-top:12px;">
@@ -236,3 +241,82 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   ProductRenderer.fetchCategories();
 });
+
+// Inject dynamic CSS for the hover animations
+(function injectActionGroupCSS() {
+  if (document.getElementById('action-group-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'action-group-styles';
+  style.textContent = `
+    .product-action-group {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+      align-items: center;
+    }
+    .product-action-group .wishlist-btn {
+      position: relative;
+      top: 0;
+      right: 0;
+    }
+    .product-action-group .share-btn {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(-20px) scale(0.8);
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .product-card:hover .product-action-group .share-btn {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .product-action-group .share-btn:hover {
+      transform: scale(1.1) !important;
+      color: var(--primary);
+      box-shadow: 0 6px 16px rgba(26,156,62,0.15);
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+// ======= SHARE PRODUCT HANDLER =======
+window.shareProduct = async function(event, id, name, price) {
+  event.stopPropagation();
+  const url = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + `shop_details.php?product_id=${id}`;
+  const shareText = `I found ${name} for ₹${price} on Village Foods. Order now!\n\n`;
+  
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `Check out ${name}`,
+        text: shareText,
+        url: url
+      });
+    } catch (err) {
+      console.log('Error sharing', err);
+    }
+  } else {
+    navigator.clipboard.writeText(shareText + "\n" + url).then(() => {
+      if (typeof Toast !== 'undefined') Toast.show("Link copied to clipboard!", "success");
+      else alert("Link copied to clipboard!");
+    }).catch(err => {
+      if (typeof Toast !== 'undefined') Toast.show("Failed to copy link", "error");
+    });
+  }
+};

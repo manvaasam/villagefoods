@@ -4,45 +4,57 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-require_once 'db.php';
-require_once 'auth_helper.php';
-require_once 'settings_helper.php';
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/auth_helper.php';
+require_once __DIR__ . '/settings_helper.php';
 Settings::load($pdo);
 checkPersistentLogin($pdo);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php
   $siteName = 'Village Foods';
   $defaultDesc = 'Farm fresh vegetables, premium meats, and bakery items delivered to your doorstep in 30 minutes across Thirupathur District. Secure, fast, and authentic.';
-  $defaultKeywords = 'fresh grocery delivery, online vegetable shopping, meat delivery, village foods, Thirupathur food delivery, farm fresh, quick delivery';
   
   $metaTitle = $pageTitle ?? "$siteName — Fresh & Fast Delivery";
   $metaDesc = $pageDescription ?? $defaultDesc;
-  $metaKeywords = $pageKeywords ?? $defaultKeywords;
   
   $currentUrl = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-  $ogImgPath = $ogImage ?? (($urlPrefix ?? '') . 'assets/images/village_quick-1.png');
+  $baseUrl = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]" . str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
+  
+  $ogImgPath = $ogImage ?? 'assets/images/logo/VillageFoods Delivery Logo.png';
+  if (!preg_match('~^(?:f|ht)tps?://~i', $ogImgPath)) {
+      $ogImgPath = $baseUrl . $ogImgPath;
+  }
 ?>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo htmlspecialchars($metaTitle, ENT_QUOTES, 'UTF-8'); ?></title>
   <meta name="description" content="<?php echo htmlspecialchars($metaDesc, ENT_QUOTES, 'UTF-8'); ?>">
-  <meta name="keywords" content="<?php echo htmlspecialchars($metaKeywords, ENT_QUOTES, 'UTF-8'); ?>">
-  <meta name="author" content="<?php echo htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8'); ?>">
   <link rel="canonical" href="<?php echo htmlspecialchars($currentUrl, ENT_QUOTES, 'UTF-8'); ?>">
 
   <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="article">
   <meta property="og:url" content="<?php echo htmlspecialchars($currentUrl, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:title" content="<?php echo htmlspecialchars($metaTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:description" content="<?php echo htmlspecialchars($metaDesc, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:image" content="<?php echo htmlspecialchars($ogImgPath, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:image:secure_url" content="<?php echo htmlspecialchars($ogImgPath, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta property="og:image:width" content="500">
+  <meta property="og:image:height" content="500">
   <meta property="og:site_name" content="<?php echo htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta itemprop="image" content="<?php echo htmlspecialchars($ogImgPath, ENT_QUOTES, 'UTF-8'); ?>">
+
+<?php
+  $defaultKeywords = 'fresh grocery delivery, online vegetable shopping, meat delivery, village foods, Thirupathur food delivery, farm fresh, quick delivery';
+  $metaKeywords = $pageKeywords ?? $defaultKeywords;
+?>
+  <meta name="keywords" content="<?php echo htmlspecialchars($metaKeywords, ENT_QUOTES, 'UTF-8'); ?>">
+  <meta name="author" content="<?php echo htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8'); ?>">
 
   <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:card" content="summary">
   <meta property="twitter:url" content="<?php echo htmlspecialchars($currentUrl, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="twitter:title" content="<?php echo htmlspecialchars($metaTitle, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="twitter:description" content="<?php echo htmlspecialchars($metaDesc, ENT_QUOTES, 'UTF-8'); ?>">

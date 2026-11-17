@@ -115,7 +115,7 @@ require_once '../includes/db.php';
             <tr>
                 <td style="padding-left: 24px;">
                     <div class="table-product-avatar" style="display: flex; align-items: center; gap: 10px; height: auto;">
-                        <img src="../${shop.shop_image || 'assets/images/placeholder.png'}" alt="${shop.shop_name}" style="width:40px; height:40px; border-radius: 8px; object-fit: cover;">
+                        <img src="../${shop.shop_image || 'assets/images/placeholder.png'}" onerror="this.src='../assets/images/placeholder.png'" alt="${shop.shop_name}" style="width:40px; height:40px; border-radius: 8px; object-fit: cover;">
                         <div>
                             <div style="font-weight:800; color:var(--text); font-size: 13px; line-height: 1.2;">${shop.shop_name}</div>
                             <div style="font-size: 10px; color: var(--primary); font-weight: 700; margin-top: 2px;">#SH-${shop.id}</div>

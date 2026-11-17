@@ -147,9 +147,26 @@ const Geo = (() => {
   return { detect, updateCheckoutLocation };
 })();
 
-// ======= AUTHENTICATION (EMAIL OTP) =======
+// ======= AUTHENTICATION (SMS OTP) =======
 const Auth = (() => {
+  let userPhone = '';
   let userEmail = '';
+
+  function cleanPhone(num) {
+    if (!num) return '';
+    let cleaned = String(num).replace(/\D/g, '');
+    if (cleaned.length === 12 && cleaned.startsWith('91')) {
+      cleaned = cleaned.substring(2);
+    } else if (cleaned.length === 11 && cleaned.startsWith('0')) {
+      cleaned = cleaned.substring(1);
+    }
+    return cleaned;
+  }
+
+  function isValidPhone(num) {
+    const cleaned = cleanPhone(num);
+    return /^[6-9]\d{9}$/.test(cleaned);
+  }
 
   async function checkStatus() {
     try {
@@ -160,9 +177,9 @@ const Auth = (() => {
 
   async function handleLoginStep() {
     const nameEl = document.getElementById('loginName');
-    const emailEl = document.getElementById('loginEmail');
+    const phoneEl = document.getElementById('loginPhone') || document.getElementById('loginEmail');
     const name = nameEl ? nameEl.value.trim() : '';
-    const email = emailEl ? emailEl.value.trim() : '';
+    const phone = phoneEl ? cleanPhone(phoneEl.value) : '';
 
     if (!name) { Toast.show('Please enter your full name', 'warning'); return; }
     
@@ -172,63 +189,71 @@ const Auth = (() => {
         return;
     }
 
-    if (!email) { Toast.show('Please enter your email', 'warning'); return; }
-    if (!Utils.isValidEmail(email)) { Toast.show('Please enter a valid email address', 'error'); return; }
+    if (!phone) { Toast.show('Please enter your 10-digit mobile number', 'warning'); return; }
+    if (!isValidPhone(phone)) { Toast.show('Please enter a valid 10-digit mobile number', 'error'); return; }
 
-    userEmail = email;
-    sendOtp(email, name);
+    userPhone = phone;
+    sendOtp(phone, name);
   }
 
-  async function sendOtp(emailInput, nameInput) {
-    const email = emailInput || (document.getElementById('loginEmail') ? document.getElementById('loginEmail').value.trim() : '');
-    const name = nameInput || (document.getElementById('loginName') ? document.getElementById('loginName').value.trim() : '');
+  async function sendOtp(phoneInput, nameInput) {
+    const phoneEl = document.getElementById('loginPhone') || document.getElementById('loginEmail');
+    const nameEl = document.getElementById('loginName');
+    const phone = cleanPhone(phoneInput || (phoneEl ? phoneEl.value : ''));
+    const name = nameInput || (nameEl ? nameEl.value.trim() : '');
 
-    if (!email) {
-      Toast.show('Please enter your email', 'warning');
+    if (!phone) {
+      Toast.show('Please enter your 10-digit mobile number', 'warning');
       return;
     }
 
-    if (!Utils.isValidEmail(email)) {
-      Toast.show('Please enter a valid email address', 'error');
+    if (!isValidPhone(phone)) {
+      Toast.show('Please enter a valid 10-digit Indian mobile number', 'error');
       return;
     }
 
-    userEmail = email;
+    userPhone = phone;
 
     const btn = document.getElementById('btnSendOtp');
     const originalText = btn.textContent;
-    btn.textContent = 'Sending...';
+    btn.textContent = 'Sending SMS...';
     btn.disabled = true;
 
     try {
       const res = await fetch('api/auth/send_otp.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name })
+        body: JSON.stringify({ phone, name })
       });
       const data = await res.json();
 
       if (data.status === 'success') {
-        document.getElementById('displayEmail').textContent = email;
+        const displayEl = document.getElementById('displayEmail') || document.getElementById('displayPhone');
+        if (displayEl) displayEl.textContent = '+91 ' + phone;
         document.getElementById('emailView').style.display = 'none';
         document.getElementById('otpView').style.display = 'block';
-        document.getElementById('loginModalTitle').textContent = 'Verify Email';
-        document.getElementById('loginModalSub').textContent = 'Enter the 6-digit code sent to your inbox';
-        Toast.show('OTP sent to your email!', 'success');
+        document.getElementById('loginModalTitle').textContent = 'Verify Mobile Number';
+        document.getElementById('loginModalSub').textContent = 'Enter the 6-digit OTP sent to your phone';
+        Toast.show(data.message || 'OTP sent to your phone!', 'success');
+        
+        setTimeout(() => {
+          const otpInput = document.getElementById('loginOtp');
+          if (otpInput) { otpInput.value = ''; otpInput.focus(); }
+        }, 150);
       } else {
         Toast.show(data.message, 'error');
       }
     } catch (e) {
-      Toast.show('Failed to send OTP. Try again.', 'error');
+      Toast.show('Failed to send OTP SMS. Please try again.', 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = originalText || 'Continue';
+      btn.textContent = originalText || 'Get OTP via SMS';
     }
   }
 
   async function verifyOtp() {
     const otpInput = document.getElementById('loginOtp');
-    const otp = otpInput.value.trim();
+    const otp = otpInput ? otpInput.value.trim() : '';
 
     if (otp.length !== 6) {
       Toast.show('Please enter the 6-digit OTP', 'error');
@@ -243,7 +268,7 @@ const Auth = (() => {
       const res = await fetch('api/auth/verify_otp.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, otp: otp })
+        body: JSON.stringify({ phone: userPhone, otp: otp })
       });
       const data = await res.json();
 
@@ -302,14 +327,13 @@ const Auth = (() => {
     document.getElementById('loginModalTitle').textContent = 'Welcome to Village Foods';
     document.getElementById('loginModalSub').textContent = 'Sign in to sync your cart and checkout';
     
-    // Auto-focus email input for better UX
     setTimeout(() => {
-        const emailEl = document.getElementById('loginEmail');
-        if (emailEl) emailEl.focus();
+        const phoneEl = document.getElementById('loginPhone') || document.getElementById('loginEmail');
+        if (phoneEl) phoneEl.focus();
     }, 100);
   }
 
-  return { checkStatus, handleLoginStep, sendOtp, verifyOtp, proceedToCheckout, toggleUserDropdown, showEmailView };
+  return { checkStatus, handleLoginStep, sendOtp, verifyOtp, proceedToCheckout, toggleUserDropdown, showEmailView, showPhoneView: showEmailView };
 })();
 
 // ======= WISHLIST SYSTEM =======

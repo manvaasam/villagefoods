@@ -134,26 +134,35 @@ try {
             ];
         }
     } else {
-        $days = ($range === '7d') ? 6 : 29;
-        for ($i = $days; $i >= 0; $i--) {
+        $days_val = ($range === '7d') ? 7 : 30;
+        $start_date = date('Y-m-d', strtotime("-".($days_val-1)." days"));
+
+        $stmt = $pdo->prepare("
+            SELECT 
+                DATE(created_at) as d, 
+                SUM(CASE WHEN payment_status = 'Paid' THEN grand_total ELSE 0 END) as rev,
+                COUNT(*) as cnt 
+            FROM orders 
+            WHERE DATE(created_at) >= ? 
+            GROUP BY DATE(created_at)
+        ");
+        $stmt->execute([$start_date]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $indexedData = [];
+        foreach ($rows as $row) {
+            $indexedData[$row['d']] = $row;
+        }
+
+        for ($i = $days_val - 1; $i >= 0; $i--) {
             $date = date('Y-m-d', strtotime("-$i days"));
             $day_name = date('D', strtotime($date));
             
-            // Revenue
-            $stmt = $pdo->prepare("SELECT SUM(grand_total) as total FROM orders WHERE payment_status = 'Paid' AND DATE(created_at) = ?");
-            $stmt->execute([$date]);
-            $rev = $stmt->fetch()['total'] ?? 0;
-            
-            // Orders
-            $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM orders WHERE DATE(created_at) = ?");
-            $stmt->execute([$date]);
-            $ord = $stmt->fetch()['total'] ?? 0;
-
             $daily_stats[] = [
                 'day' => $day_name,
                 'date' => date('M d', strtotime($date)),
-                'amount' => (float)$rev,
-                'orders' => (int)$ord
+                'amount' => (float)($indexedData[$date]['rev'] ?? 0),
+                'orders' => (int)($indexedData[$date]['cnt'] ?? 0)
             ];
         }
     }

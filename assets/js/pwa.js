@@ -8,15 +8,25 @@ let deferredPrompt;
 // 1. Register Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // 1. Determine the root path dynamically based on where pwa.js is located
         const scriptTag = document.querySelector('script[src*="pwa.js"]');
-        let swUrl = '/service-worker.js'; // Fallback to root
+        let swUrl = '/service-worker.js'; // Production root
         
         if (scriptTag) {
             const pwaJsPath = scriptTag.getAttribute('src');
-            // Extract the part of the URL before 'assets/js/pwa.js'
+            // Extract the base path by removing 'assets/js/pwa.js' from the full script src
             const rootPath = pwaJsPath.split('assets/js/pwa.js')[0];
-            swUrl = rootPath + 'service-worker.js';
+            
+            // Construct swUrl dynamically
+            if (rootPath.startsWith('http')) {
+                // If it's an absolute URL, use it
+                swUrl = rootPath + 'service-worker.js';
+            } else if (rootPath !== "") {
+                // If it's a relative path starting with / or ../
+                swUrl = rootPath + 'service-worker.js';
+            } else {
+                // Default fallback to root
+                swUrl = '/service-worker.js';
+            }
         }
         
         console.log('PWA: Current Hostname:', window.location.hostname);
@@ -45,7 +55,29 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 // 3. Trigger Install Prompt
 async function installPWA() {
-    if (!deferredPrompt) return;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isStandalone) {
+        if (typeof Toast !== 'undefined') Toast.show('App is already installed!');
+        else alert('App is already installed!');
+        return;
+    }
+
+    if (isIOS) {
+        const msg = 'To install: Tap the <b>Share</b> button in Safari browser and select <b>"Add to Home Screen"</b>. <br><br> (Safari-la irundhu Share button-ah click panni "Add to Home Screen" select pannunga machan)';
+        if (typeof Toast !== 'undefined') Toast.show(msg, 'info');
+        else alert('iOS: Tap Share -> Add to Home Screen');
+        return;
+    }
+
+    if (!deferredPrompt) {
+        const msg = 'Install prompt not ready yet. Try refreshing or wait a moment. On Chrome mobile, you can also use <b>Settings (three dots) > Install app</b>.';
+        if (typeof Toast !== 'undefined') Toast.show(msg, 'info');
+        else alert('Prompt not ready. Use browser menu to Install.');
+        return;
+    }
+
     // Show the install prompt
     deferredPrompt.prompt();
     // Wait for the user to respond to the prompt

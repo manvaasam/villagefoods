@@ -21,14 +21,18 @@ try {
         exit;
     }
 
+    // TEMPORARY MANUAL OVERRIDE: 
+    // We are disabling 'open pool' broadcast so the admin must manually assign the order.
     // Fetch all Rapid Orders that are still in 'pending' status
+    /*
     $stmt = $pdo->query("SELECT r.*, u.name as customer_name 
                         FROM rapid_orders r 
                         JOIN users u ON r.customer_id = u.id 
                         WHERE r.status = 'pending' AND r.delivery_boy_id IS NULL 
                         ORDER BY r.created_at DESC");
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+    */
+    $orders = [];
     echo json_encode($orders);
 } catch (Exception $e) {
     http_response_code(500);

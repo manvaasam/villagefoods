@@ -27,14 +27,10 @@ class RapidHelper {
      * Reverts them to 'pending' and syncs the delivery boy's status.
      */
     public static function handleTimeouts($pdo) {
-        $timeoutSeconds = 60;
-        
-        // Find assigned orders older than 60 seconds
-        $stmt = $pdo->prepare("SELECT id, delivery_boy_id FROM rapid_orders 
-                               WHERE status = 'assigned' 
-                               AND updated_at < (NOW() - INTERVAL ? SECOND)");
-        $stmt->execute([$timeoutSeconds]);
-        $timedOutOrders = $stmt->fetchAll();
+        // TEMPORARY MANUAL OVERRIDE:
+        // Disabled auto-timeout because we disabled the open-pool feature.
+        // Orders will stay 'assigned' to the delivery boy indefinitely until accepted or manually reassigned.
+        return 0;
 
         foreach ($timedOutOrders as $order) {
             $pdo->beginTransaction();

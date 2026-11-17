@@ -2,7 +2,7 @@
 $pageTitle = 'Village Foods — Fresh & Fast Delivery in Thirupathur';
 $pageDescription = 'Order fresh vegetables, premium meats, bakery items, and groceries from local farms. 30-minute delivery in Thirupathur District starting at ₹40. 100% Secure & Fresh.';
 $pageKeywords = 'Thirupathur grocery delivery, farm fresh veggies, fresh meat delivery online, Village Foods Thirupathur, online supermarket';
-$ogImage = 'assets/images/village_quick-1.png';
+$ogImage = 'assets/images/logo/VillageFoods Delivery Logo.png';
 
 include 'includes/header.php';
 include 'includes/navbar.php';
@@ -13,9 +13,9 @@ include 'includes/navbar.php';
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Village Foods",
-  "image": "https://villagefoods.in/assets/images/logo/VillageFoods Delivery Logo.png",
+  "image": "https://villagefoods.store/assets/images/logo/VillageFoods Delivery Logo.png",
   "description": "Farm fresh vegetables, premium meats, and bakery items delivered to your doorstep in 30 minutes across Thirupathur District.",
-  "url": "https://villagefoods.in",
+  "url": "https://villagefoods.store",
   "telephone": "+<?php echo Settings::get('store_phone', '916380091001'); ?>",
   "priceRange": "₹₹",
   "address": {
@@ -42,69 +42,179 @@ include 'includes/navbar.php';
 }
 </script>
 
-<!-- ====== HERO ====== -->
-<section class="hero">
-  <div class="hero-slider">
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
+<!-- GSAP for Smooth Animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<!-- ====== HERO SECTION (DUAL LAYOUT) ====== -->
+
+<!-- 🖥️ DESKTOP HERO (Visible on Desktop only) -->
+<section class="hero d-none d-lg-flex">
+  <div class="hero-visual-bg">
+    <img src="assets/images/hero_premium.png" alt="Fresh Food Basket">
   </div>
+  
   <div class="hero-inner">
-    <div class="hero-content fade-in-up">
+    <div class="hero-content">
       <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        Delivering in 30 minutes or less
+        <i data-lucide="zap"></i>
+        <span>Delivering in 30 minutes or less</span>
       </div>
+      
       <h1>Farm Fresh, Delivered<br>to Your <span>Doorstep</span></h1>
-      <div style="display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap">
-        <div style="background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); padding:8px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; gap:10px">
-          <div style="width:32px; height:32px; background:white; border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden">
-            <img src="assets/images/village_quick-1.png" alt="Quick" style="width:100%; height:100%; object-fit:cover">
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:10px; color:rgba(255,255,255,0.6); font-weight:700; text-transform:uppercase; line-height:1">Village</div>
-            <div style="font-size:14px; color:white; font-weight:800; line-height:1.1">Quick Service</div>
-          </div>
+      
+      <p>Experience the finest organic produce and premium treats from our village farms, delivered fresh to your kitchen.</p>
+      
+      <div class="hero-search-wrapper">
+        <div class="hero-search-box">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Search for fresh veggies, meats..." id="heroSearchInput" oninput="filterProducts(this.value)" onkeypress="if(event.key === 'Enter') performHeroSearch()">
+          <button class="hero-search-btn" onclick="performHeroSearch()">
+            <span>Search</span>
+            <i data-lucide="arrow-right"></i>
+          </button>
         </div>
-        <div style="background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); padding:8px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; gap:10px">
-          <div style="width:32px; height:32px; background:#fbbf24; border-radius:8px; display:flex; align-items:center; justify-content:center; color:white"><i data-lucide="shield-check" style="width:18px; height:18px"></i></div>
-          <div style="text-align:center">
-            <div style="font-size:10px; color:rgba(255,255,255,0.6); font-weight:700; text-transform:uppercase; line-height:1">Verified</div>
-            <div style="font-size:14px; color:white; font-weight:800; line-height:1.1">Partners</div>
+      </div>
+      
+      <div class="hero-features">
+        <a href="pickup-drop" class="hero-feat-card" style="text-decoration: none; color: inherit;">
+          <div class="hero-feat-icon" style="background: white; padding: 6px;">
+            <img src="assets/images/village_quick-1.png" alt="Village Quick" style="width: 100%; height: 100%; object-fit: contain;">
+          </div>
+          <div class="hero-feat-text">
+            <h4>Quick Service</h4>
+            <p>Village Quality</p>
+          </div>
+        </a>
+        <div class="hero-feat-card">
+          <div class="hero-feat-icon"><i data-lucide="shield-check"></i></div>
+          <div class="hero-feat-text">
+            <h4>Verified</h4>
+            <p>Local Partners</p>
           </div>
         </div>
       </div>
-      <p>Order fresh vegetables, meats, bakery & more. From our village farms directly to your kitchen — fast, fresh, and affordable.</p>
-      <div class="hero-search-box">
-        <input type="text" placeholder="What are you craving today?" id="heroSearchInput" oninput="filterProducts(this.value)" onkeypress="if(event.key === 'Enter') performHeroSearch()">
-        <button onclick="performHeroSearch()">Search Now</button>
-      </div>
+      
       <div class="hero-stats">
         <div class="hero-stat">
-          <div class="hero-stat-num">50K+</div>
-          <div class="hero-stat-label">Happy Customers</div>
+          <h3>50K+</h3>
+          <p>Customers</p>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-num">30 min</div>
-          <div class="hero-stat-label">Avg Delivery</div>
+          <h3>30m</h3>
+          <p>Delivery</p>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-num">500+</div>
-          <div class="hero-stat-label">Products</div>
+          <h3>500+</h3>
+          <p>Products</p>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-num">4.8 <i data-lucide="star" style="width:14px;height:14px;display:inline-block;vertical-align:middle;fill:#fbbf24;color:#fbbf24"></i></div>
-          <div class="hero-stat-label">App Rating</div>
+          <h3>4.8</h3>
+          <p>Rating</p>
         </div>
       </div>
     </div>
   </div>
-  <div class="hero-wave"></div>
 </section>
+
+<!-- 📱 MOBILE HERO (Visible on Mobile only - Restoring Old UI Style) -->
+<section class="hero-mobile d-lg-none">
+  <!-- Animated Background Slideshow -->
+  <div class="m-hero-slideshow">
+    <div class="m-slide active" style="background-image: url('assets/images/hero_veg.png')"></div>
+    <div class="m-slide" style="background-image: url('assets/images/hero_meat.png')"></div>
+    <div class="m-slide" style="background-image: url('assets/images/sweet.png')"></div>
+    <div class="m-slide" style="background-image: url('assets/images/hero_fruits.png')"></div>
+    <div class="m-slide" style="background-image: url('assets/images/new-milk.jpg')"></div>
+    <div class="m-slide" style="background-image: url('assets/images/hero_seafood.png')"></div>
+  </div>
+  
+  <div class="m-hero-overlay"></div>
+  <div class="m-hero-content">
+    <div class="m-hero-badge">
+      <span class="m-dot"></span> DELIVERING IN 30 MINUTES OR LESS
+    </div>
+    
+    <h1 class="m-hero-title">Farm Fresh, Delivered to Your <span>Doorstep</span></h1>
+    
+    <div class="m-hero-tags">
+      <div class="m-tag-card">
+        <div class="m-tag-icon quick"><img src="assets/images/village_quick-1.png"></div>
+        <div class="m-tag-text">
+          <small>VILLAGE</small>
+          <strong>Quick Service</strong>
+        </div>
+      </div>
+      <div class="m-tag-card">
+        <div class="m-tag-icon verified"><i data-lucide="shield-check"></i></div>
+        <div class="m-tag-text">
+          <small>VERIFIED</small>
+          <strong>Partners</strong>
+        </div>
+      </div>
+    </div>
+    
+    <p class="m-hero-desc">Order fresh vegetables, meats, bakery & more. From our village farms directly to your kitchen — fast, fresh, and affordable.</p>
+    
+    <div class="m-hero-search">
+      <input type="text" placeholder="What are you craving today?" id="mobileSearchInput" oninput="filterProducts(this.value)" onkeypress="if(event.key === 'Enter') performHeroSearch()">
+      <button class="m-search-btn" onclick="performHeroSearch()">Search Now</button>
+    </div>
+    
+    <div class="m-hero-stats">
+      <div class="m-stat-item">
+        <strong>50K+</strong>
+        <span>Happy Customers</span>
+      </div>
+      <div class="m-stat-item">
+        <strong>30 min</strong>
+        <span>Avg Delivery</span>
+      </div>
+      <div class="m-stat-item">
+        <strong>500+</strong>
+        <span>Products</span>
+      </div>
+      <div class="m-stat-item">
+        <strong>4.8 <i data-lucide="star" style="width:10px; height:10px; fill:#fbbf24; color:#fbbf24"></i></strong>
+        <span>App Rating</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Lucide Icons
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+
+  // GSAP Entrance Animations
+  const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+  
+  tl.from(".hero-content h1", { y: 50, opacity: 0, duration: 1 })
+    .from(".hero-content p", { y: 30, opacity: 0, duration: 0.8 }, "-=0.6")
+    .from(".hero-search-wrapper", { y: 20, opacity: 0, duration: 0.8 }, "-=0.6")
+    .from(".hero-feat-card", { y: 20, opacity: 0, duration: 0.6, stagger: 0.2 }, "-=0.4")
+    .from(".hero-stat", { opacity: 0, y: 20, duration: 0.8, stagger: 0.1 }, "-=0.4")
+    .from(".hero-visual-bg", { x: 100, opacity: 0, duration: 1.5, ease: "power2.out" }, "-=1.5");
+
+  // Mobile Background Slideshow
+  function startMobileSlideshow() {
+    const slides = document.querySelectorAll('.m-slide');
+    if (!slides.length) return;
+    
+    let currentSlide = 0;
+    setInterval(() => {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+    }, 5000);
+  }
+
+  // Start mobile slideshow
+  startMobileSlideshow();
+});
+</script>
 
 <!-- ====== BANNER STRIP ====== -->
 <div class="banner-strip">
@@ -163,18 +273,18 @@ include 'includes/navbar.php';
       <div class="promo-card promo-main">
         <div class="promo-emoji"><i data-lucide="utensils"></i></div>
         <div class="promo-card-label">Today's Special</div>
-        <div class="promo-card-title">Farm Fresh Chicken<br>at ₹169/kg</div>
+        <div class="promo-card-title">Farm Fresh Chicken<br>Premium Quality Guaranteed</div>
         <div class="promo-card-sub">Order before 6PM — Limited stock available daily</div>
-        <div class="promo-btn" onclick="goToCategory('chicken')">Shop Now <i data-lucide="arrow-right"></i></div>
+        <div class="promo-btn" onclick="window.location.href='category_shops.php?slug=chicken'">Shop Now <i data-lucide="arrow-right"></i></div>
       </div>
       <div class="promo-sub-grid">
-        <div class="promo-card promo-sub" onclick="goToCategory('bakery')">
+        <div class="promo-card promo-sub" onclick="window.location.href='category_shops.php?slug=bakery'">
           <div class="promo-emoji" style="font-size:40px;top:50%;right:24px"><i data-lucide="wheat" style="width:48px;height:48px"></i></div>
           <div class="promo-card-label">Bakery Fresh</div>
           <div class="promo-card-title" style="font-size:18px">Freshly Baked Daily</div>
           <div class="promo-btn" style="font-size:11px;padding:6px 14px">Explore <i data-lucide="arrow-right"></i></div>
         </div>
-        <div class="promo-card promo-sub2" onclick="goToCategory('veg')">
+        <div class="promo-card promo-sub2" onclick="window.location.href='category_shops.php?slug=veg'">
           <div class="promo-emoji" style="font-size:40px;top:50%;right:24px"><i data-lucide="carrot" style="width:48px;height:48px"></i></div>
           <div class="promo-card-label">Organic Range</div>
           <div class="promo-card-title" style="font-size:18px">10% Off on Organics</div>
@@ -449,7 +559,9 @@ include 'includes/navbar.php';
   }
 
   function performHeroSearch() {
-    const query = document.getElementById('heroSearchInput').value.trim();
+    const desktopInput = document.getElementById('heroSearchInput');
+    const mobileInput = document.getElementById('mobileSearchInput');
+    const query = (desktopInput && desktopInput.value ? desktopInput.value : (mobileInput ? mobileInput.value : '')).trim();
     const productsSection = document.getElementById('productsSection');
     
     // Always scroll to products section

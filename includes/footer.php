@@ -94,13 +94,15 @@ window.APP_SETTINGS = {
     enableCod: <?= Settings::isEnabled('enable_cod') ? 'true' : 'false' ?>
 };
 </script>
-<script src="assets/js/utils.js"></script>
-<script src="assets/js/location.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="<?php echo $urlPrefix ?? ''; ?>assets/js/utils.js"></script>
+<script src="<?php echo $urlPrefix ?? ''; ?>assets/js/location.js"></script>
+<script src="<?php echo $urlPrefix ?? ''; ?>assets/js/pwa.js"></script>
 <?php 
 if (isset($extraScripts) && is_string($extraScripts) && trim($extraScripts) !== '') {
     echo $extraScripts;
 } else {
-    echo '<script src="assets/js/products.js"></script>';
+    echo '<script src="' . ($urlPrefix ?? '') . 'assets/js/products.js"></script>';
 }
 ?>
 <script>

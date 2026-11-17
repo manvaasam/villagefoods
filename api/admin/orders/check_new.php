@@ -33,6 +33,10 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM orders WHERE payment_status = 'Refund Pending'");
     $pending_refunds = $stmt->fetch()['total'] ?? 0;
 
+    // 7. Pending Partners (Delivery Boys)
+    $stmt = $pdo->query("SELECT COUNT(*) as total FROM delivery_partners WHERE verification_status = 'Verification Pending'");
+    $pending_partners = $stmt->fetch()['total'] ?? 0;
+
     echo json_encode([
         'status' => 'success',
         'pending_count' => (int)$pending_count,
@@ -43,7 +47,8 @@ try {
         'latest_upd_num' => $latest_upd_num,
         'latest_upd_status' => $latest_upd_status,
         'pending_withdrawals' => (int)$pending_withdrawals,
-        'pending_refunds' => (int)$pending_refunds
+        'pending_refunds' => (int)$pending_refunds,
+        'pending_partners' => (int)$pending_partners
     ]);
 } catch (PDOException $e) {
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);

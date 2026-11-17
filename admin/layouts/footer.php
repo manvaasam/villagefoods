@@ -36,23 +36,42 @@
       <div class="form-group"><label class="form-label">Unit/Weight</label><input class="form-input" type="text" id="prodUnit" placeholder="e.g. 500g, 1kg, 12 pcs"></div>
       <div class="form-group"><label class="form-label">Stock Quantity</label><input class="form-input" type="number" id="prodStock" placeholder="100"></div>
     </div>
-    <div class="form-grid-2">
-      <div class="form-group">
-        <label class="form-label">Product Image</label>
-        <input class="form-input" type="file" id="prodImageFile" accept="image/*">
-        <div id="prodImagePreview" style="margin-top:10px; display:none;">
-          <img id="prodImagePreviewImg" src="" style="width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid var(--border);" onerror="this.src='../assets/images/placeholder.png';">
-        </div>
-      </div>
-      <div class="form-group"><label class="form-label">Original Price (₹)</label><input class="form-input" type="number" id="prodOldPrice" placeholder="M.R.P or Old price"></div>
-      <div class="form-group"><label class="form-label">Product Rating (0-5)</label><input class="form-input" type="number" id="prodRating" step="0.1" min="0" max="5" placeholder="4.5"></div>
+<div class="form-grid-2">
+  <div class="form-group">
+    <label class="form-label">
+      Product Image <small style="color:#888;">(Max: 1 MB)</small>
+    </label>
+
+    <input class="form-input" type="file" id="prodImageFile" accept="image/*">
+
+    <div id="prodImagePreview" style="margin-top:10px; display:none;">
+      <img id="prodImagePreviewImg" src="" style="width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid var(--border);" onerror="this.src='../assets/images/placeholder.png';">
     </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Original Price (₹)</label>
+    <input class="form-input" type="number" id="prodOldPrice" placeholder="M.R.P or Old price">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Product Rating (0-5)</label>
+    <input class="form-input" type="number" id="prodRating" step="0.1" min="0" max="5" placeholder="4.5">
+  </div>
+</div>
     <div class="form-grid-2">
       <div class="form-group">
         <label class="form-label">Show in Best Sellers?</label>
         <select class="form-input" id="prodIsBestseller">
           <option value="0">No, Standard Product</option>
           <option value="1">Yes, Top Selling Item</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Product Status</label>
+        <select class="form-input" id="prodStatus">
+          <option value="active">Active (Available)</option>
+          <option value="inactive">Inactive (Hidden)</option>
         </select>
       </div>
     </div>
@@ -376,18 +395,24 @@
   gtag('config', 'G-FDCG4L7ZZ4');
 </script>
 <script src="../assets/js/utils.js"></script>
-<script src="../assets/js/admin.js?v=2.1"></script>
+<script src="../assets/js/admin.js?v=2.3"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
     }
-    window.addEventListener('load', () => {
-      if (typeof NotificationEngine !== 'undefined') {
-        NotificationEngine.init();
-      }
-    });
   });
+</script>
+<script>
+document.getElementById('prodImageFile').addEventListener('change', function () {
+    const file = this.files[0];
+
+    if (file && file.size > 1024 * 1024) { // 1 MB
+        alert('Image size should be less than 1 MB.');
+        this.value = '';
+        document.getElementById('prodImagePreview').style.display = 'none';
+    }
+});
 </script>
 </body>
 </html>

@@ -69,9 +69,9 @@ include 'layouts/header.php';
                         <span style="font-weight:800; font-size:13px; text-transform:uppercase">Pricing Guide</span>
                     </div>
                     <p style="margin:0; font-size:12.5px; color:#475569; line-height:1.6">
-                        Fare = <strong>[Base Price]</strong> + <strong>[(Distance - 2km) × KM Rate]</strong>. <br>
-                        <span style="font-size:11.5px; opacity:0.8">Example: If distance is 5km and Bike Base is ₹20, KM Rate is ₹10: <br>
-                        ₹20 (first 2km) + ₹30 (extra 3km) = <strong>₹50 Total</strong>.</span>
+                        Fare = <strong>[Base Price]</strong> + <strong>[(Distance - 3km) × KM Rate]</strong>. <br>
+                        <span style="font-size:11.5px; opacity:0.8">Example: If distance is 5km and Bike Base is ₹20, KM Rate is ₹6: <br>
+                        ₹20 (first 3km) + ₹12 (extra 2km) = <strong>₹32 Total</strong>.</span>
                     </p>
                 </div>
                 
@@ -97,7 +97,7 @@ include 'layouts/header.php';
                 <div class="form-group" style="margin-top: 16px;">
                     <label class="form-label">Distance Charge (₹ per KM)</label>
                     <input class="form-input" type="number" id="rapid_price_per_km" placeholder="10">
-                    <p class="text-muted fs-12">Additional charge for every kilometer after the first 2km.</p>
+                    <p class="text-muted fs-12">Additional charge for every kilometer after the first 3km.</p>
                 </div>
             </div>
 

@@ -107,6 +107,8 @@ include 'layouts/header.php';
     justify-content: center;
     opacity: 0;
     transition: opacity 0.3s ease;
+    padding: 16px;
+    box-sizing: border-box;
 }
 
 .rapid-overlay.active {
@@ -116,13 +118,16 @@ include 'layouts/header.php';
 
 .rapid-modal-box {
     background: white;
-    width: 90%;
-    max-width: 520px;
+    width: 100%;
+    max-width: 650px;
     border-radius: 28px;
     box-shadow: 0 50px 100px -20px rgba(0,0,0,0.3);
     /* Removed overflow:hidden to allow dropdowns to pop out */
     transform: scale(0.9);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
 }
 
 .rapid-overlay.active .rapid-modal-box {
@@ -137,10 +142,18 @@ include 'layouts/header.php';
     justify-content: space-between;
     align-items: center;
     border-radius: 28px 28px 0 0;
+    flex-shrink: 0;
 }
 
 .rapid-modal-body {
     padding: 30px 30px 40px 30px;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.rapid-modal-body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
 .rapid-info-grid {
@@ -166,7 +179,8 @@ include 'layouts/header.php';
     font-size: 14px;
     color: #1e293b;
     font-weight: 700;
-    line-height: 1.4;
+    line-height: 1.5;
+    word-break: break-word;
 }
 
 .rapid-close-btn {
@@ -182,6 +196,7 @@ include 'layouts/header.php';
     font-size: 18px;
     color: #64748b;
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .rapid-close-btn:hover {
@@ -202,6 +217,9 @@ include 'layouts/header.php';
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
     transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-premium:hover {
@@ -209,9 +227,19 @@ include 'layouts/header.php';
     box-shadow: 0 8px 15px rgba(var(--primary-rgb), 0.4);
 }
 
-.btn-premium:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(var(--primary-rgb), 0.4);
+.rapid-assign-group {
+    display: flex;
+    gap: 10px;
+}
+
+.rapid-modal-actions {
+    margin-top: 1px;
+    padding-top: 24px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
 /* Responsive Overrides */
@@ -240,7 +268,7 @@ include 'layouts/header.php';
     }
 
     .rapid-modal-body {
-        padding: 20px 20px 30px 20px;
+        padding: 20px;
     }
 
     .rapid-info-grid {
@@ -249,8 +277,23 @@ include 'layouts/header.php';
         gap: 16px;
     }
 
-    .rapid-modal-box {
-        width: 95%;
+    .rapid-assign-group {
+        flex-direction: column;
+    }
+
+    .rapid-assign-group select,
+    .rapid-assign-group button {
+        width: 100%;
+    }
+
+    .rapid-modal-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .rapid-modal-actions button {
+        width: 100%;
+        justify-content: center;
     }
 }
 </style>
@@ -314,6 +357,14 @@ include 'layouts/header.php';
                         <div id="modalDrop" class="rapid-value">-</div>
                     </div>
                     <div>
+                        <div class="rapid-label">Customer</div>
+                        <div id="modalCustomerName" class="rapid-value">-</div>
+                    </div>
+                    <div>
+                        <div class="rapid-label">Phone Number</div>
+                        <div id="modalCustomerPhone" class="rapid-value">-</div>
+                    </div>
+                    <div>
                         <div class="rapid-label">Price</div>
                         <div id="modalPrice" class="rapid-value" style="font-size: 18px; color: var(--primary);">₹0</div>
                     </div>
@@ -331,7 +382,7 @@ include 'layouts/header.php';
                 </h4>
                 
                 <div id="unassignedState" style="display: block;">
-                    <div style="display: flex; gap: 10px;">
+                    <div class="rapid-assign-group">
                         <select id="partnerSelect" class="filter-select" style="flex: 1; height: 46px; border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 0 12px; font-weight: 600; font-size: 13px;">
                             <option value="">Select Partner...</option>
                         </select>
@@ -339,9 +390,9 @@ include 'layouts/header.php';
                     </div>
                 </div>
 
-                <div id="assignedState" style="display: none; align-items: center; justify-content: space-between; background: #f0fdf4; padding: 16px; border-radius: 16px; border: 1.5px solid #bbf7d0;">
+                <div id="assignedState" style="display: none; align-items: center; justify-content: space-between; background: #f0fdf4; padding: 16px; border-radius: 16px; border: 1.5px solid #bbf7d0; flex-wrap: wrap; gap: 12px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="background: white; color: #16a34a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                        <div style="background: white; color: #16a34a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-shrink: 0;">
                             <i data-lucide="user-check" style="width: 18px; height: 18px;"></i>
                         </div>
                         <div>
@@ -352,11 +403,16 @@ include 'layouts/header.php';
                     <button id="btnReassign" class="btn-premium" style="background: white; color: #16a34a; border: 1.5px solid #86efac; box-shadow: none; padding: 6px 14px; font-size:11px;" onclick="RapidMonitor.toggleReassign()">Change</button>
                 </div>
             </div>
-        </div>
 
-        <div style="padding: 24px 30px; background: rgba(248, 250, 252, 0.5); border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 10px; border-radius: 0 0 28px 28px;">
-            <button id="btnCancelOrder" class="btn-premium" style="background: transparent; color: #dc2626; border: 1.5px solid #fecaca; box-shadow: none;" onclick="RapidMonitor.confirmAction('rejected')">Cancel Order</button>
-            <button id="btnCompleteOrder" class="btn-premium" onclick="RapidMonitor.confirmAction('completed')">Mark Completed</button>
+            <!-- Section 3: Modal Actions -->
+            <div class="rapid-modal-actions">
+                <button id="btnCancelOrder" class="btn-premium" style="background: transparent; color: #ef4444; border: 1.5px solid #fee2e2; box-shadow: none; font-size: 12px; padding: 10px 16px;" onclick="RapidMonitor.confirmAction('rejected')">
+                    <i data-lucide="x-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 6px;"></i> Cancel Order
+                </button>
+                <button id="btnCompleteOrder" class="btn-premium" onclick="RapidMonitor.confirmAction('completed')">
+                    <i data-lucide="check-circle" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 6px;"></i> Mark Completed
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -428,10 +484,10 @@ const RapidMonitor = {
                         <td>
                             ${o.delivery_boy_name ? 
                                 `<div style="display:flex; align-items:center; gap:8px;">
-                                    <div style="width:28px; height:28px; background:var(--primary-pale); color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800;">
+                                    <div style="width:28px; height:28px; background:var(--primary-pale); color:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink: 0; font-size:10px; font-weight:800;">
                                         ${o.delivery_boy_name.charAt(0)}
                                     </div>
-                                    <div style="font-weight:700; color:#1e293b; font-size:13px;">${o.delivery_boy_name}</div>
+                                    <div style="font-weight:700; color:#1e293b; font-size:13px; white-space:nowrap;">${o.delivery_boy_name}</div>
                                 </div>` : 
                                 `<span style="color:#f59e0b; font-weight:700; font-size:11px; display:flex; align-items:center; gap:4px; background:#fff7ed; padding:4px 10px; border-radius:20px; width:fit-content;">
                                     <i data-lucide="clock" style="width:12px; height:12px;"></i> Unassigned
@@ -478,6 +534,18 @@ const RapidMonitor = {
         document.getElementById('modalPickup').innerText = order.pickup_address;
         document.getElementById('modalDrop').innerText = order.drop_address;
         document.getElementById('modalPrice').innerText = `₹${parseFloat(order.price).toFixed(2)}`;
+
+        // Customer Details
+        const customerPhone = (order.sender_phone && order.sender_phone !== 'null' && order.sender_phone !== '') ? order.sender_phone : 
+                              (order.customer_phone && order.customer_phone !== 'null' && order.customer_phone !== '') ? order.customer_phone : 
+                              'No Phone';
+        
+        document.getElementById('modalCustomerName').innerText = order.customer_name || 'Anonymous';
+        if (customerPhone !== 'No Phone') {
+            document.getElementById('modalCustomerPhone').innerHTML = `<a href="tel:${customerPhone}" style="color: var(--primary); text-decoration: none; border-bottom: 1px dashed var(--primary); font-weight:800;"><i data-lucide="phone" style="width:12px; height:12px; vertical-align: middle;"></i> ${customerPhone}</a>`;
+        } else {
+            document.getElementById('modalCustomerPhone').innerText = customerPhone;
+        }
         
         const labelCfg = this.statusLabels[status] || { label: order.status, class: 'sp-pending' };
         const statusEl = document.getElementById('modalStatus');
@@ -515,9 +583,35 @@ const RapidMonitor = {
 
     populateSelect: function() {
         const select = document.getElementById('partnerSelect');
-        select.innerHTML = '<option value="">Select Available Partner...</option>' + 
-            this.availablePartners.map(p => `<option value="${p.id}">${p.name} (${p.phone})</option>`).join('');
+        
+        // Sort: Online & Ready (0 orders) first, then Online & Busy, then Offline
+        const sortedPartners = (this.availablePartners || []).sort((a, b) => {
+            if (a.is_online != b.is_online) return b.is_online - a.is_online;
+            const aActive = (parseInt(a.active_orders) || 0) + (parseInt(a.active_rapid_orders) || 0);
+            const bActive = (parseInt(b.active_orders) || 0) + (parseInt(b.active_rapid_orders) || 0);
+            return aActive - bActive;
+        });
+
+        select.innerHTML = '<option value="">Select Partner...</option>' + 
+            sortedPartners.map(p => {
+                const activeCount = (parseInt(p.active_orders) || 0) + (parseInt(p.active_rapid_orders) || 0);
+                let statusText = '';
+                if (p.is_online == 1) {
+                    statusText = activeCount > 0 ? `Busy (${activeCount} order${activeCount > 1 ? 's' : ''})` : 'Ready';
+                } else {
+                    statusText = 'Inactive';
+                }
+                const activeTotal = (parseInt(p.active_orders) || 0) + (parseInt(p.active_rapid_orders) || 0);
+                let statusIcon = '⚪';
+                if (p.is_online == 1) {
+                    statusIcon = activeTotal > 0 ? '🟡' : '🟢';
+                }
+                return `<option value="${p.id}">${Utils.escapeHTML(p.name)}${p.city ? ' (' + Utils.escapeHTML(p.city) + ')' : ''} ${statusIcon} - ${statusText}</option>`;
+
+
+            }).join('');
     },
+
 
     toggleReassign: function() {
         document.getElementById('assignedState').style.display = 'none';
